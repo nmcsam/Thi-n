@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Thiền">
+<meta name="theme-color" content="#1a1a2e">
+<title>Theo Dõi Thiền</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --ink: #1a1a2e;
+  --ink2: #2d2d4e;
+  --surface: #ffffff;
+  --surface2: #f4f3ef;
+  --surface3: #ebe9e3;
+  --muted: #7a7a8c;
+  --faint: #b8b8c8;
+  --border: rgba(26,26,46,0.10);
+  --border2: rgba(26,26,46,0.20);
+  --gold: #b8860b;
+  --gold-light: #fdf6e0;
+  --gold-mid: #e8c84a;
+  --teal: #0e7f6e;
+  --teal-light: #e0f4f1;
+  --rose: #8b3a52;
+  --rose-light: #fce8ef;
+  --blue: #2563a8;
+  --blue-light: #e8f0fb;
+  --r: 10px;
+  --rl: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e8e6f0;
+    --ink2: #c8c6d8;
+    --surface: #14131f;
+    --surface2: #1e1d2e;
+    --surface3: #28273c;
+    --muted: #8888a8;
+    --faint: #505068;
+    --border: rgba(232,230,240,0.10);
+    --border2: rgba(232,230,240,0.20);
+    --gold-light: #2a2208;
+    --teal-light: #062420;
+    --rose-light: #280e18;
+    --blue-light: #0a1e38;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--surface2);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;max-width:540px;margin:0 auto;background:var(--surface2)}
+
+/* ── HEADER ── */
+.hdr{padding:14px 16px 10px;background:var(--surface);border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.hdr-left .app-name{font-size:17px;font-weight:700;letter-spacing:-.3px;color:var(--ink)}
+.hdr-left .app-date{font-size:11px;color:var(--muted);margin-top:2px}
+.streak{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--gold-light);color:var(--gold)}
+
+/* ── NAV ── */
+.nav{display:flex;background:var(--surface);border-bottom:0.5px solid var(--border)}
+.nav-btn{flex:1;border:none;background:transparent;padding:9px 2px 7px;font-size:10px;font-weight:500;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+.nav-btn svg{width:19px;height:19px;stroke-width:1.7}
+.nav-btn.on{color:var(--teal);border-bottom-color:var(--teal)}
+
+/* ── SCROLL AREA ── */
+.scroll{flex:1;overflow-y:auto;padding:12px 12px 90px}
+.scroll::-webkit-scrollbar{width:3px}
+.scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.page{display:none}.page.on{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:14px 16px;margin-bottom:10px}
+.card-hd{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+
+/* ── METRICS ── */
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.mcell{background:var(--surface2);border-radius:var(--r);padding:12px 13px}
+.mcell-label{font-size:11px;color:var(--muted);margin-bottom:5px}
+.mcell-val{font-size:23px;font-weight:700;color:var(--ink);line-height:1}
+.mcell-unit{font-size:11px;font-weight:400;color:var(--muted)}
+
+/* ── SESSION BLOCKS ── */
+.session-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.sess-block{border:1px solid var(--border2);border-radius:var(--r);padding:12px;cursor:pointer;transition:border-color .15s,background .15s}
+.sess-block.done{background:var(--teal-light);border-color:var(--teal)}
+.sess-block.active-sess{background:var(--gold-light);border-color:var(--gold)}
+.sess-lbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.sess-mins{font-size:20px;font-weight:700;color:var(--ink)}
+.sess-type{font-size:11px;color:var(--muted);margin-top:2px}
+.sess-status{font-size:11px;margin-top:4px;font-weight:500}
+.done .sess-status{color:var(--teal)}
+.active-sess .sess-status{color:var(--gold)}
+
+/* ── PLAN VS ACTUAL BARS ── */
+.pva-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--border)}
+.pva-row:last-child{border-bottom:none}
+.pva-day{font-size:11px;color:var(--muted);width:22px;flex-shrink:0;text-align:center}
+.pva-bars{flex:1;display:flex;flex-direction:column;gap:3px}
+.pva-bar-bg{height:8px;background:var(--surface3);border-radius:4px;overflow:hidden}
+.pva-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.pva-nums{font-size:10px;color:var(--muted);width:52px;text-align:right;flex-shrink:0}
+
+/* ── CALENDAR ── */
+.cal-hdr{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:4px}
+.cal-hdr-cell{font-size:10px;font-weight:600;color:var(--muted);padding:3px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:11px;font-weight:500;color:var(--muted);cursor:pointer;transition:background .15s}
+.cal-cell.has-data{color:var(--surface);font-weight:600}
+.cal-cell.full{background:var(--teal)}
+.cal-cell.partial{background:var(--gold-mid);color:var(--ink)}
+.cal-cell.missed{background:var(--rose-light);color:var(--rose)}
+.cal-cell.today{box-shadow:0 0 0 2px var(--teal)}
+.cal-cell.empty{visibility:hidden}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-nav button{border:none;background:transparent;font-size:18px;color:var(--muted);cursor:pointer;padding:4px 8px}
+.cal-month{font-size:14px;font-weight:600;color:var(--ink)}
+
+/* ── TIMER ── */
+.timer-face{text-align:center;padding:20px 0 16px}
+.timer-ring-wrap{position:relative;width:180px;height:180px;margin:0 auto 14px}
+.timer-ring-wrap svg{width:180px;height:180px;transform:rotate(-90deg)}
+.timer-bg-ring{fill:none;stroke:var(--surface3);stroke-width:8}
+.timer-progress{fill:none;stroke:var(--teal);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .8s linear}
+.timer-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.timer-time{font-size:32px;font-weight:700;color:var(--ink);letter-spacing:-1px;line-height:1}
+.timer-label{font-size:11px;color:var(--muted);margin-top:4px}
+.timer-btns{display:flex;gap:8px;justify-content:center;margin-top:8px}
+.tbtn{border:1px solid var(--border2);background:transparent;border-radius:var(--r);padding:10px 22px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
+.tbtn.start{background:var(--teal);border-color:var(--teal);color:#fff}
+.tbtn.stop{background:var(--rose);border-color:var(--rose);color:#fff}
+.timer-setup{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.tset{background:var(--surface2);border-radius:var(--r);padding:10px 12px;border:1px solid var(--border)}
+.tset-label{font-size:11px;color:var(--muted);margin-bottom:6px}
+.tset-row{display:flex;align-items:center;gap:6px}
+.tset-row button{border:none;background:var(--surface3);border-radius:6px;width:26px;height:26px;font-size:16px;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:700}
+.tset-val{font-size:18px;font-weight:700;min-width:36px;text-align:center;color:var(--ink)}
+.bell-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:var(--r);padding:10px 12px;border:1px solid var(--border);margin-bottom:8px}
+.bell-info{font-size:13px;color:var(--ink)}
+.bell-info small{display:block;font-size:11px;color:var(--muted)}
+.toggle{position:relative;width:42px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--surface3);border-radius:12px;cursor:pointer;transition:.3s}
+.toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle input:checked+.toggle-slider{background:var(--teal)}
+.toggle input:checked+.toggle-slider:before{transform:translateX(18px)}
+.sess-select{margin-bottom:10px}
+.sess-select-row{display:flex;gap:6px}
+.ssbtn{flex:1;padding:8px 4px;border:1px solid var(--border2);border-radius:var(--r);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;background:transparent;transition:all .15s}
+.ssbtn.on{background:var(--teal-light);border-color:var(--teal);color:var(--teal)}
+
+/* ── TAGS ── */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.tag{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);color:var(--muted);cursor:pointer;background:transparent;transition:all .15s}
+.tag.on{background:var(--teal-light);border-color:var(--teal);color:var(--teal);font-weight:600}
+
+/* ── FORM ── */
+.frow{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.frow label{font-size:13px;color:var(--ink)}
+.finput{width:76px;padding:7px 10px;font-size:15px;font-weight:600;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);color:var(--ink);text-align:center}
+.srow{margin-bottom:12px}
+.srow-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.srow label{font-size:13px;color:var(--ink)}
+.srow .sval{font-size:13px;font-weight:700;color:var(--teal)}
+input[type=range]{width:100%;accent-color:var(--teal)}
+
+/* ── CHART ── */
+.chart-wrap{position:relative;width:100%}
+
+/* ── RECS ── */
+.rec-item{display:flex;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border);align-items:flex-start}
+.rec-item:last-child{border-bottom:none}
+.rec-ico{font-size:20px;flex-shrink:0}
+.rec-body{font-size:13px;color:var(--ink);line-height:1.6}
+.rec-body strong{font-weight:600}
+
+/* ── BUTTON ── */
+.btn{width:100%;padding:12px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;transition:all .15s}
+.btn:active{transform:scale(.98)}
+.btn-p{background:var(--teal);border-color:var(--teal);color:#fff}
+.btn-d{color:var(--rose);border-color:var(--rose-light)}
+
+/* ── LEGEND ── */
+.lg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px}
+.lg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.lg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--surface);font-size:12px;padding:9px 18px;border-radius:20px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:99;white-space:nowrap}
+.toast.on{opacity:1}
+
+/* ── MONTHLY SUMMARY ── */
+.mo-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.mo-stat{background:var(--surface2);border-radius:var(--r);padding:10px;text-align:center}
+.mo-stat-val{font-size:20px;font-weight:700;color:var(--ink)}
+.mo-stat-label{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* detail popup */
+.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:none;align-items:flex-end}
+.detail-overlay.on{display:flex}
+.detail-sheet{background:var(--surface);border-radius:var(--rl) var(--rl) 0 0;padding:20px 16px 36px;width:100%;max-width:540px;margin:0 auto}
+.detail-sheet h3{font-size:15px;font-weight:700;margin-bottom:14px}
+.detail-close{float:right;font-size:20px;cursor:pointer;color:var(--muted);background:none;border:none}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="app-name">🧘 Thiền Tracker</div>
+    <div class="app-date" id="hdr-date"></div>
+  </div>
+  <span class="streak" id="streak-el">0 ngày 🔥</span>
+</div>
+
+<div class="nav">
+  <button class="nav-btn on" onclick="nav('today')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Hôm nay
+  </button>
+  <button class="nav-btn" onclick="nav('plan')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>Kế hoạch
+  </button>
+  <button class="nav-btn" onclick="nav('month')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><circle cx="8" cy="16" r="1" fill="currentColor"/><circle cx="12" cy="16" r="1" fill="currentColor"/><circle cx="16" cy="16" r="1" fill="currentColor"/></svg>Tháng
+  </button>
+  <button class="nav-btn" onclick="nav('chart')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Biểu đồ
+  </button>
+  <button class="nav-btn" onclick="nav('rec')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Khuyến cáo
+  </button>
+</div>
+
+<div class="scroll">
+
+<!-- ══════════ HÔM NAY ══════════ -->
+<div class="page on" id="pg-today">
+
+  <div class="card">
+    <div class="card-hd">Hai thời thiền hôm nay</div>
+    <div class="session-pair">
+      <div class="sess-block" id="sess1-card" onclick="openLogModal(1)">
+        <div class="sess-lbl">🌅 Buổi sáng</div>
+        <div class="sess-mins" id="sess1-mins">— ph</div>
+        <div class="sess-type" id="sess1-type">Chưa ghi</div>
+        <div class="sess-status" id="sess1-status">Nhấn để ghi</div>
+      </div>
+      <div class="sess-block" id="sess2-card" onclick="openLogModal(2)">
+        <div class="sess-lbl">🌙 Buổi tối</div>
+        <div class="sess-mins" id="sess2-mins">— ph</div>
+        <div class="sess-type" id="sess2-type">Chưa ghi</div>
+        <div class="sess-status" id="sess2-status">Nhấn để ghi</div>
+      </div>
+    </div>
+    <div class="mrow" style="margin-bottom:0">
+      <div class="mcell"><div class="mcell-label">Tổng hôm nay</div><div class="mcell-val" id="today-total">0<span class="mcell-unit"> ph</span></div></div>
+      <div class="mcell"><div class="mcell-label">Đạt kế hoạch</div><div class="mcell-val" id="today-pct">0<span class="mcell-unit">%</span></div></div>
+    </div>
+  </div>
+
+  <!-- TIMER -->
+  <div class="card">
+    <div class="card-hd">Đồng hồ thiền
+      <span id="timer-sess-label" style="font-size:11px;color:var(--teal)">Buổi sáng</span>
+    </div>
+    <div class="sess-select">
+      <div class="sess-select-row">
+        <button class="ssbtn on" id="tss1" onclick="selectTimerSess(1)">🌅 Buổi sáng</button>
+        <button class="ssbtn" id="tss2" onclick="selectTimerSess(2)">🌙 Buổi tối</button>
+      </div>
+    </div>
+    <div class="timer-setup">
+      <div class="tset">
+        <div class="tset-label">Thời gian (ph)</div>
+        <div class="tset-row">
+          <button onclick="adjTimer(-5)">−</button>
+          <span class="tset-val" id="timer-set-val">30</span>
+          <button onclick="adjTimer(5)">+</button>
+        </div>
+      </div>
+      <div class="tset">
+        <div class="tset-label">Chuông nhắc (ph)</div>
+        <div class="tset-row">
+          <button onclick="adjBell(-5)">−</button>
+          <span class="tset-val" id="bell-interval-val">10</span>
+          <button onclick="adjBell(5)">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="bell-row">
+      <div class="bell-info">Chuông kết thúc<small>Âm thanh báo hết giờ</small></div>
+      <label class="toggle"><input type="checkbox" id="bell-end" checked><span class="toggle-slider"></span></label>
+    </div>
+    <div class="bell-row">
+      <div class="bell-info">Chuông nhắc giữa giờ<small>Mỗi <span id="bell-int-display">10</span> phút</small></div>
+      <label class="toggle"><input type="checkbox" id="bell-mid"><span class="toggle-slider"></span></label>
+    </div>
+
+    <div class="timer-face">
+      <div class="timer-ring-wrap">
+        <svg viewBox="0 0 180 180"><circle class="timer-bg-ring" cx="90" cy="90" r="82"/><circle class="timer-progress" id="timer-ring" cx="90" cy="90" r="82" stroke-dasharray="515.2" stroke-dashoffset="0"/></svg>
+        <div class="timer-center">
+          <div class="timer-time" id="timer-display">30:00</div>
+          <div class="timer-label" id="timer-state-lbl">Sẵn sàng</div>
+        </div>
+      </div>
+      <div class="timer-btns">
+        <button class="tbtn start" id="timer-start-btn" onclick="timerStartStop()">▶ Bắt đầu</button>
+        <button class="tbtn" id="timer-reset-btn" onclick="timerReset()">↺ Đặt lại</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════ KẾ HOẠCH ══════════ -->
+<div class="page" id="pg-plan">
+  <div class="card">
+    <div class="card-hd">Đặt mục tiêu hằng ngày</div>
+    <div class="srow">
+      <div class="srow-top"><label>Buổi sáng (phút)</label><span class="sval" id="goal1-val">30 ph</span></div>
+      <input type="range" id="goal1-slider" min="5" max="120" step="5" value="30" oninput="updateGoal(1,this.value)">
+    </div>
+    <div class="srow">
+      <div class="srow-top"><label>Buổi tối (phút)</label><span class="sval" id="goal2-val">30 ph</span></div>
+      <input type="range" id="goal2-slider" min="5" max="120" step="5" value="30" oninput="updateGoal(2,this.value)">
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;font-weight:600;letter-spacing:.5px">Loại thiền yêu thích</div>
+    <div class="tags" id="pref-tags">
+      <span class="tag on" onclick="this.classList.toggle('on')">Ānāpāna</span>
+      <span class="tag" onclick="this.classList.toggle('on')">Mettā</span>
+      <span class="tag" onclick="this.classList.toggle('on')">Vipassanā</span>
+      <span class="tag" onclick="this.classList.toggle('on')">Từ bi</span>
+      <span class="tag" onclick="this.classList.toggle('on')">Tụng kinh</span>
+      <span class="tag" onclick="this.classList.toggle('on')">Kinh hành</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Kế hoạch vs Thực tế — 7 ngày</div>
+    <div class="lg">
+      <div class="lg-item"><div class="lg-dot" style="background:#a8c8e8"></div>KH sáng</div>
+      <div class="lg-item"><div class="lg-dot" style="background:#0e7f6e"></div>TT sáng</div>
+      <div class="lg-item"><div class="lg-dot" style="background:#d4a8c8"></div>KH tối</div>
+      <div class="lg-item"><div class="lg-dot" style="background:#8b3a52"></div>TT tối</div>
+    </div>
+    <div id="pva-bars"></div>
+  </div>
+
+  <div class="mrow">
+    <div class="mcell"><div class="mcell-label">Tổng tuần</div><div class="mcell-val" id="week-total">0<span class="mcell-unit"> ph</span></div></div>
+    <div class="mcell"><div class="mcell-label">Hoàn thành</div><div class="mcell-val" id="week-pct">0<span class="mcell-unit">%</span></div></div>
+    <div class="mcell"><div class="mcell-label">TB ngày</div><div class="mcell-val" id="week-avg">0<span class="mcell-unit"> ph</span></div></div>
+    <div class="mcell"><div class="mcell-label">Ngày đạt KH</div><div class="mcell-val" id="week-days">0<span class="mcell-unit">/7</span></div></div>
+  </div>
+</div>
+
+<!-- ══════════ THÁNG ══════════ -->
+<div class="page" id="pg-month">
+  <div class="card">
+    <div class="cal-nav">
+      <button onclick="prevMonth()">‹</button>
+      <span class="cal-month" id="cal-month-label"></span>
+      <button onclick="nextMonth()">›</button>
+    </div>
+    <div class="cal-hdr">
+      <div class="cal-hdr-cell">CN</div><div class="cal-hdr-cell">T2</div><div class="cal-hdr-cell">T3</div>
+      <div class="cal-hdr-cell">T4</div><div class="cal-hdr-cell">T5</div><div class="cal-hdr-cell">T6</div>
+      <div class="cal-hdr-cell">T7</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap">
+      <div class="lg-item"><div class="lg-dot" style="background:var(--teal)"></div>Đủ 2 thời</div>
+      <div class="lg-item"><div class="lg-dot" style="background:var(--gold-mid)"></div>1 thời</div>
+      <div class="lg-item"><div class="lg-dot" style="background:var(--rose-light);border:1px solid var(--rose)"></div>Bỏ</div>
+    </div>
+  </div>
+
+  <div class="mo-stats">
+    <div class="mo-stat"><div class="mo-stat-val" id="mo-days">0</div><div class="mo-stat-label">Ngày thiền</div></div>
+    <div class="mo-stat"><div class="mo-stat-val" id="mo-mins">0</div><div class="mo-stat-label">Tổng phút</div></div>
+    <div class="mo-stat"><div class="mo-stat-val" id="mo-streak">0</div><div class="mo-stat-label">Chuỗi dài nhất</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Phút thiền theo tuần trong tháng</div>
+    <div class="chart-wrap" style="height:180px"><canvas id="chart-month" role="img" aria-label="Biểu đồ thiền theo tuần">Dữ liệu chưa có.</canvas></div>
+  </div>
+</div>
+
+<!-- ══════════ BIỂU ĐỒ ══════════ -->
+<div class="page" id="pg-chart">
+  <div class="card">
+    <div class="card-hd">Sáng vs Tối — 14 ngày</div>
+    <div class="lg">
+      <div class="lg-item"><div class="lg-dot" style="background:#0e7f6e"></div>Buổi sáng</div>
+      <div class="lg-item"><div class="lg-dot" style="background:#8b3a52"></div>Buổi tối</div>
+    </div>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-14" role="img" aria-label="Biểu đồ sáng tối 14 ngày">Dữ liệu chưa có.</canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Tổng phút — 30 ngày gần nhất</div>
+    <div class="chart-wrap" style="height:160px"><canvas id="chart-30" role="img" aria-label="Biểu đồ 30 ngày">Dữ liệu chưa có.</canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Chất lượng tập trung — 14 ngày</div>
+    <div class="chart-wrap" style="height:150px"><canvas id="chart-quality" role="img" aria-label="Biểu đồ chất lượng">Dữ liệu chưa có.</canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Phân bổ loại thiền</div>
+    <div class="chart-wrap" style="height:170px"><canvas id="chart-types" role="img" aria-label="Biểu đồ loại thiền">Dữ liệu chưa có.</canvas></div>
+    <div id="types-legend" class="lg" style="margin-top:10px;margin-bottom:0"></div>
+  </div>
+</div>
+
+<!-- ══════════ KHUYẾN CÁO ══════════ -->
+<div class="page" id="pg-rec">
+  <div class="card">
+    <div class="card-hd">Phân tích & Khuyến cáo</div>
+    <div id="rec-list"><div style="color:var(--muted);font-size:13px;padding:10px 0">Ghi lại buổi thiền để nhận khuyến cáo.</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Thành tích</div>
+    <div id="achievements"></div>
+  </div>
+  <div class="card" style="background:var(--teal-light);border-color:rgba(14,127,110,.3)">
+    <div style="font-size:13px;color:var(--teal);line-height:1.8">
+      <strong>Gợi ý Pa-Auk:</strong> Ānāpānasati buổi sáng sớm + Mettā buổi tối — kết hợp này củng cố cả định (samādhi) và tâm từ (mettā-citta), tạo nền tảng vững cho tuệ quán Vipassanā.
+    </div>
+  </div>
+  <button class="btn btn-d" onclick="if(confirm('Xóa tất cả dữ liệu?')){ST.data=[];save();renderAll();toast('Đã xóa')}">🗑 Xóa toàn bộ dữ liệu</button>
+</div>
+
+</div><!-- /scroll -->
+
+<!-- ══════════ LOG MODAL ══════════ -->
+<div class="detail-overlay" id="log-modal">
+  <div class="detail-sheet">
+    <button class="detail-close" onclick="closeLogModal()">✕</button>
+    <h3 id="log-modal-title">Ghi buổi thiền</h3>
+    <div class="frow">
+      <label>Thời gian (phút)</label>
+      <input class="finput" type="number" id="log-mins" min="1" max="360" value="30">
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Loại thiền</div>
+    <div class="tags" id="log-type-tags">
+      <span class="tag on" onclick="this.classList.toggle('on')">Ānāpāna</span>
+      <span class="tag" onclick="this.classList.toggle('on')">Mettā</span>
+      <span class="tag" onclick="this.classList.toggle('on')">Vipassanā</span>
+      <span class="tag" onclick="this.classList.toggle('on')">Từ bi</span>
+      <span class="tag" onclick="this.classList.toggle('on')">Tụng kinh</span>
+      <span class="tag" onclick="this.classList.toggle('on')">Kinh hành</span>
+    </div>
+    <div class="srow">
+      <div class="srow-top"><label>Chất lượng tập trung</label><span class="sval" id="modal-q-val">Trung bình</span></div>
+      <input type="range" id="log-quality" min="1" max="5" step="1" value="3" oninput="document.getElementById('modal-q-val').textContent=qLabel(this.value)">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px"><span>Khó tập trung</span><span>Xuất sắc</span></div>
+    </div>
+    <button class="btn btn-p" onclick="saveLog()">✓ Lưu buổi thiền</button>
+  </div>
+</div>
+
+<!-- ══════════ DAY DETAIL ══════════ -->
+<div class="detail-overlay" id="day-detail">
+  <div class="detail-sheet">
+    <button class="detail-close" onclick="document.getElementById('day-detail').classList.remove('on')">✕</button>
+    <h3 id="dd-title">Chi tiết ngày</h3>
+    <div id="dd-body" style="font-size:13px;color:var(--ink);line-height:2"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+const DAYS7 = ['CN','T2','T3','T4','T5','T6','T7'];
+const TYPE_COLORS = ['#0e7f6e','#2563a8','#b8860b','#8b3a52','#553eb8','#3a7d44','#a0522d'];
+const KEY = 'thien_v3';
+
+let ST = {
+  goal1: 30, goal2: 30,
+  data: []
+};
+
+let logSessNum = 1;
+let timerSessNum = 1;
+let timerMins = 30;
+let bellInterval = 10;
+let timerInterval = null;
+let timerRemaining = 0;
+let timerTotal = 0;
+let timerRunning = false;
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let charts = {};
+let bellTimeouts = [];
+let audioCtx = null;
+
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){} }
+function load(){ try{const s=localStorage.getItem(KEY);if(s)ST=Object.assign(ST,JSON.parse(s))}catch(e){} }
+
+function getDK(off=0){ const d=new Date(); d.setDate(d.getDate()-off); return d.toISOString().slice(0,10); }
+function getEntry(k){ return ST.data.find(d=>d.date===k)||null; }
+function getLast(n){ return Array.from({length:n},(_,i)=>getDK(n-1-i)); }
+
+function qLabel(v){ return ['','Khó tập trung','Hơi phân tán','Trung bình','Tốt','Xuất sắc'][+v]; }
+
+function toast(msg){
+  const el=document.getElementById('toast-el');
+  el.textContent=msg; el.classList.add('on');
+  setTimeout(()=>el.classList.remove('on'),2200);
+}
+
+// ── NAVIGATION ──
+function nav(id){
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>{
+    b.classList.toggle('on',['today','plan','month','chart','rec'][i]===id);
+  });
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  if(id==='chart') setTimeout(renderCharts,60);
+  if(id==='month') renderCalendar();
+  if(id==='rec') renderRec();
+}
+
+// ── GOAL ──
+function updateGoal(n,v){
+  if(n===1) ST.goal1=+v; else ST.goal2=+v;
+  document.getElementById('goal'+n+'-val').textContent=v+' ph';
+  save(); renderAll();
+}
+
+// ── LOG MODAL ──
+function openLogModal(sessNum){
+  logSessNum=sessNum;
+  document.getElementById('log-modal-title').textContent=sessNum===1?'Ghi buổi sáng':'Ghi buổi tối';
+  const k=getDK(); const e=getEntry(k);
+  const mins=e?((sessNum===1?e.mins1:e.mins2)||30):30;
+  const q=e?((sessNum===1?e.q1:e.q2)||3):3;
+  document.getElementById('log-mins').value=mins;
+  document.getElementById('log-quality').value=q;
+  document.getElementById('modal-q-val').textContent=qLabel(q);
+  document.getElementById('log-modal').classList.add('on');
+}
+function closeLogModal(){ document.getElementById('log-modal').classList.remove('on'); }
+
+function saveLog(){
+  const mins=+document.getElementById('log-mins').value;
+  const q=+document.getElementById('log-quality').value;
+  const types=[...document.querySelectorAll('#log-type-tags .on')].map(t=>t.textContent);
+  if(!mins||mins<1){toast('Nhập số phút hợp lệ');return;}
+  const k=getDK();
+  let e=getEntry(k);
+  if(!e){e={date:k,mins1:0,mins2:0,q1:0,q2:0,types1:[],types2:[]};ST.data.push(e);}
+  if(logSessNum===1){e.mins1=mins;e.q1=q;e.types1=types;}
+  else{e.mins2=mins;e.q2=q;e.types2=types;}
+  save(); closeLogModal(); renderAll();
+  toast('✓ Đã lưu '+(logSessNum===1?'buổi sáng':'buổi tối'));
+}
+
+// ── TIMER ──
+function getAudioCtx(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function ringBell(freq=528, dur=1.2, vol=0.5){
+  try{
+    const ctx=getAudioCtx();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(freq,ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(freq*0.7,ctx.currentTime+dur);
+    gain.gain.setValueAtTime(0,ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(vol,ctx.currentTime+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime+dur);
+    // harmonic
+    const osc2=ctx.createOscillator(); const g2=ctx.createGain();
+    osc2.connect(g2); g2.connect(ctx.destination);
+    osc2.frequency.setValueAtTime(freq*1.5,ctx.currentTime);
+    osc2.frequency.exponentialRampToValueAtTime(freq,ctx.currentTime+dur);
+    g2.gain.setValueAtTime(0,ctx.currentTime);
+    g2.gain.linearRampToValueAtTime(vol*0.4,ctx.currentTime+0.02);
+    g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+    osc2.start(ctx.currentTime); osc2.stop(ctx.currentTime+dur);
+  }catch(e){}
+}
+
+function adjTimer(delta){
+  if(timerRunning) return;
+  timerMins=Math.max(5,Math.min(180,timerMins+delta));
+  document.getElementById('timer-set-val').textContent=timerMins;
+  timerReset();
+}
+function adjBell(delta){
+  bellInterval=Math.max(5,Math.min(60,bellInterval+delta));
+  document.getElementById('bell-interval-val').textContent=bellInterval;
+  document.getElementById('bell-int-display').textContent=bellInterval;
+}
+
+function selectTimerSess(n){
+  timerSessNum=n;
+  document.getElementById('tss1').classList.toggle('on',n===1);
+  document.getElementById('tss2').classList.toggle('on',n===2);
+  document.getElementById('timer-sess-label').textContent=n===1?'Buổi sáng':'Buổi tối';
+}
+
+function timerFmt(s){ const m=Math.floor(s/60); return String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+
+function updateRing(remaining,total){
+  const r=82; const circ=2*Math.PI*r;
+  const frac=total>0?remaining/total:1;
+  const offset=circ*(1-frac);
+  const ring=document.getElementById('timer-ring');
+  ring.style.strokeDasharray=circ.toFixed(1);
+  ring.style.strokeDashoffset=offset.toFixed(1);
+  ring.style.stroke=frac>0.2?'var(--teal)':'var(--rose)';
+}
+
+function timerStartStop(){
+  if(!timerRunning){
+    if(timerRemaining<=0){ timerTotal=timerMins*60; timerRemaining=timerTotal; }
+    timerRunning=true;
+    document.getElementById('timer-start-btn').textContent='⏸ Jừng';
+    document.getElementById('timer-start-btn').className='tbtn stop';
+    document.getElementById('timer-state-lbl').textContent='Đang thiền…';
+    // schedule interval bells
+    bellTimeouts.forEach(clearTimeout);
+    bellTimeouts=[];
+    if(document.getElementById('bell-mid').checked){
+      const iv=bellInterval*60;
+      for(let t=iv;t<timerRemaining;t+=iv){
+        bellTimeouts.push(setTimeout(()=>ringBell(440,1.5,0.4),t*1000));
+      }
+    }
+    timerInterval=setInterval(()=>{
+      timerRemaining--;
+      document.getElementById('timer-display').textContent=timerFmt(timerRemaining);
+      updateRing(timerRemaining,timerTotal);
+      if(timerRemaining<=0){
+        clearInterval(timerInterval); timerRunning=false;
+        document.getElementById('timer-start-btn').textContent='▶ Bắt đầu';
+        document.getElementById('timer-start-btn').className='tbtn start';
+        document.getElementById('timer-state-lbl').textContent='Hoàn thành 🙏';
+        if(document.getElementById('bell-end').checked){ ringBell(528,2,0.6); setTimeout(()=>ringBell(396,2,0.5),800); }
+        // auto-log
+        const k=getDK(); let e=getEntry(k);
+        if(!e){e={date:k,mins1:0,mins2:0,q1:3,q2:3,types1:[],types2:[]};ST.data.push(e);}
+        if(timerSessNum===1){if(!e.mins1){e.mins1=timerMins;e.types1=['Ānāpāna'];}}
+        else{if(!e.mins2){e.mins2=timerMins;e.types2=['Ānāpāna'];}}
+        save(); renderAll(); toast('🔔 Hết giờ! Đã ghi '+timerMins+' ph');
+      }
+    },1000);
+  } else {
+    clearInterval(timerInterval); timerRunning=false;
+    bellTimeouts.forEach(clearTimeout);
+    document.getElementById('timer-start-btn').textContent='▶ Tiếp tục';
+    document.getElementById('timer-start-btn').className='tbtn start';
+    document.getElementById('timer-state-lbl').textContent='Đã dừng';
+  }
+}
+
+function timerReset(){
+  clearInterval(timerInterval); timerRunning=false;
+  bellTimeouts.forEach(clearTimeout);
+  timerRemaining=timerMins*60; timerTotal=timerMins*60;
+  document.getElementById('timer-display').textContent=timerFmt(timerRemaining);
+  document.getElementById('timer-start-btn').textContent='▶ Bắt đầu';
+  document.getElementById('timer-start-btn').className='tbtn start';
+  document.getElementById('timer-state-lbl').textContent='Sẵn sàng';
+  updateRing(1,1);
+}
+
+// ── RENDER TODAY ──
+function renderToday(){
+  const k=getDK(); const e=getEntry(k);
+  const m1=e?e.mins1:0; const m2=e?e.mins2:0;
+  const total=m1+m2;
+  const goal=ST.goal1+ST.goal2;
+  const pct=goal>0?Math.round(total/goal*100):0;
+  ['1','2'].forEach(n=>{
+    const m=n==='1'?m1:m2;
+    const card=document.getElementById('sess'+n+'-card');
+    const types=(e&&n==='1'?e.types1:e?.types2)||[];
+    document.getElementById('sess'+n+'-mins').textContent=m>0?m+' ph':'— ph';
+    document.getElementById('sess'+n+'-type').textContent=types.length?types.slice(0,2).join(', '):'Chưa ghi';
+    document.getElementById('sess'+n+'-status').textContent=m>0?'✓ Đã xong':'Nhấn để ghi';
+    card.className='sess-block'+(m>0?' done':'');
+  });
+  document.getElementById('today-total').innerHTML=total+'<span class="mcell-unit"> ph</span>';
+  document.getElementById('today-pct').innerHTML=pct+'<span class="mcell-unit">%</span>';
+}
+
+// ── RENDER STREAK ──
+function renderStreak(){
+  let s=0;
+  for(let i=0;;i++){
+    const e=getEntry(getDK(i));
+    if(!e||(!e.mins1&&!e.mins2)) break;
+    s++;
+  }
+  const el=document.getElementById('streak-el');
+  el.textContent=s+' ngày 🔥';
+  el.style.background=s>=7?'var(--teal-light)':s>=3?'var(--gold-light)':'var(--rose-light)';
+  el.style.color=s>=7?'var(--teal)':s>=3?'var(--gold)':'var(--rose)';
+}
+
+// ── RENDER PLAN PAGE ──
+function renderPlanPage(){
+  const days=getLast(7);
+  const maxV=Math.max(ST.goal1,ST.goal2,...days.flatMap(k=>{const e=getEntry(k);return e?[e.mins1||0,e.mins2||0]:[0,0]}),10);
+  const html=days.map(k=>{
+    const e=getEntry(k); const d=new Date(k);
+    const m1=e?e.mins1||0:0; const m2=e?e.mins2||0:0;
+    const isToday=k===getDK();
+    const lbl=DAYS7[d.getDay()]+(isToday?' ●':'');
+    const pw1=Math.round(ST.goal1/maxV*100); const pw2=Math.round(ST.goal2/maxV*100);
+    const aw1=Math.round(m1/maxV*100); const aw2=Math.round(m2/maxV*100);
+    return `<div class="pva-row">
+      <span class="pva-day" style="${isToday?'color:var(--teal);font-weight:700':''}">${lbl}</span>
+      <div class="pva-bars">
+        <div class="pva-bar-bg"><div class="pva-fill" style="width:${pw1}%;background:#a8c8e8"></div></div>
+        <div class="pva-bar-bg"><div class="pva-fill" style="width:${aw1}%;background:#0e7f6e"></div></div>
+        <div class="pva-bar-bg" style="margin-top:2px"><div class="pva-fill" style="width:${pw2}%;background:#d4a8c8"></div></div>
+        <div class="pva-bar-bg"><div class="pva-fill" style="width:${aw2}%;background:#8b3a52"></div></div>
+      </div>
+      <span class="pva-nums">${m1+m2}ph</span>
+    </div>`;
+  }).join('');
+  document.getElementById('pva-bars').innerHTML=html;
+
+  // metrics
+  const actuals=days.map(k=>{const e=getEntry(k);return e?(e.mins1||0)+(e.mins2||0):0;});
+  const total=actuals.reduce((a,b)=>a+b,0);
+  const planned=(ST.goal1+ST.goal2)*7;
+  const pct=planned>0?Math.round(total/planned*100):0;
+  const nonZ=actuals.filter(x=>x>0);
+  const avg=nonZ.length>0?Math.round(total/nonZ.length):0;
+  const fullDays=days.filter(k=>{const e=getEntry(k);return e&&e.mins1>=ST.goal1&&e.mins2>=ST.goal2;}).length;
+  document.getElementById('week-total').innerHTML=total+'<span class="mcell-unit"> ph</span>';
+  document.getElementById('week-pct').innerHTML=pct+'<span class="mcell-unit">%</span>';
+  document.getElementById('week-avg').innerHTML=avg+'<span class="mcell-unit"> ph</span>';
+  document.getElementById('week-days').innerHTML=fullDays+'<span class="mcell-unit">/7</span>';
+}
+
+// ── CALENDAR ──
+function renderCalendar(){
+  const label=['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+  document.getElementById('cal-month-label').textContent=label[calMonth]+' '+calYear;
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const todayStr=getDK();
+  let html='';
+  for(let i=0;i<firstDay;i++) html+='<div class="cal-cell empty"></div>';
+  let totalDays=0,totalMins=0,longestStreak=0,curStreak=0;
+  for(let d=1;d<=daysInMonth;d++){
+    const k=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const e=getEntry(k);
+    const isToday=k===todayStr;
+    let cls='cal-cell';
+    if(e){
+      const m1=e.mins1||0; const m2=e.mins2||0;
+      if(m1>=ST.goal1&&m2>=ST.goal2){cls+=' has-data full';totalDays++;totalMins+=m1+m2;curStreak++;longestStreak=Math.max(longestStreak,curStreak);}
+      else if(m1>0||m2>0){cls+=' has-data partial';totalDays++;totalMins+=m1+m2;curStreak++;longestStreak=Math.max(longestStreak,curStreak);}
+      else{cls+=' missed';curStreak=0;}
+    }else{
+      const isPast=new Date(k)<new Date(todayStr);
+      if(isPast) cls+=' missed';
+      curStreak=0;
+    }
+    if(isToday) cls+=' today';
+    html+=`<div class="${cls}" onclick="showDayDetail('${k}')">${d}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+  document.getElementById('mo-days').textContent=totalDays;
+  document.getElementById('mo-mins').textContent=totalMins;
+  document.getElementById('mo-streak').textContent=longestStreak;
+
+  // weekly chart
+  const weeks=[0,0,0,0,0];
+  for(let d=1;d<=daysInMonth;d++){
+    const k=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const e=getEntry(k);
+    if(e) weeks[Math.floor((d-1)/7)]+=(e.mins1||0)+(e.mins2||0);
+  }
+  if(charts.month) charts.month.destroy();
+  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const gc=isDark?'rgba(255,255,255,.07)':'rgba(0,0,0,.07)'; const tc=isDark?'#8888a8':'#7a7a8c';
+  charts.month=new Chart(document.getElementById('chart-month'),{
+    type:'bar',
+    data:{labels:['Tuần 1','Tuần 2','Tuần 3','Tuần 4','Tuần 5'],datasets:[{data:weeks,backgroundColor:weeks.map(w=>w>=(ST.goal1+ST.goal2)*7?'#0e7f6e':w>0?'#e8c84a':'#e0f4f1'),borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:gc},ticks:{color:tc,font:{size:10}}},x:{grid:{display:false},ticks:{color:tc,font:{size:10}}}}}
+  });
+}
+
+function prevMonth(){ calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); }
+function nextMonth(){ calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); }
+
+function showDayDetail(k){
+  const e=getEntry(k); const d=new Date(k);
+  const label=DAYS7[d.getDay()]+', '+d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear();
+  document.getElementById('dd-title').textContent=label;
+  if(!e||(!e.mins1&&!e.mins2)){
+    document.getElementById('dd-body').innerHTML='<span style="color:var(--muted)">Không có dữ liệu thiền ngày này.</span>';
+  } else {
+    document.getElementById('dd-body').innerHTML=`
+      <b>🌅 Buổi sáng:</b> ${e.mins1||0} ph · ${(e.types1||[]).join(', ')||'—'} · ${qLabel(e.q1||0)}<br>
+      <b>🌙 Buổi tối:</b> ${e.mins2||0} ph · ${(e.types2||[]).join(', ')||'—'} · ${qLabel(e.q2||0)}<br>
+      <b>Tổng:</b> ${(e.mins1||0)+(e.mins2||0)} ph
+    `;
+  }
+  document.getElementById('day-detail').classList.add('on');
+}
+
+// ── CHARTS ──
+function renderCharts(){
+  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const gc=isDark?'rgba(255,255,255,.07)':'rgba(0,0,0,.07)'; const tc=isDark?'#8888a8':'#7a7a8c';
+  const baseOpt={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:gc},ticks:{color:tc,font:{size:10}}},x:{grid:{display:false},ticks:{color:tc,font:{size:10}}}}};
+
+  const days14=getLast(14); const lbl14=days14.map(k=>{const d=new Date(k);return DAYS7[d.getDay()];});
+  const m1s=days14.map(k=>{const e=getEntry(k);return e?e.mins1||0:0;});
+  const m2s=days14.map(k=>{const e=getEntry(k);return e?e.mins2||0:0;});
+  if(charts.d14) charts.d14.destroy();
+  charts.d14=new Chart(document.getElementById('chart-14'),{type:'bar',data:{labels:lbl14,datasets:[
+    {label:'Sáng',data:m1s,backgroundColor:'rgba(14,127,110,.7)',borderRadius:3,borderSkipped:false},
+    {label:'Tối',data:m2s,backgroundColor:'rgba(139,58,82,.7)',borderRadius:3,borderSkipped:false,stack:'s'}
+  ]},options:{...baseOpt,scales:{...baseOpt.scales,x:{...baseOpt.scales.x,ticks:{...baseOpt.scales.x.ticks,maxRotation:0}}}}});
+
+  const days30=getLast(30); const lbl30=days30.map(k=>{const d=new Date(k);return d.getDate()+'/'+(d.getMonth()+1);});
+  const tot30=days30.map(k=>{const e=getEntry(k);return e?(e.mins1||0)+(e.mins2||0):0;});
+  if(charts.d30) charts.d30.destroy();
+  charts.d30=new Chart(document.getElementById('chart-30'),{type:'line',data:{labels:lbl30,datasets:[{data:tot30,borderColor:'#0e7f6e',backgroundColor:'rgba(14,127,110,.08)',fill:true,pointRadius:2,tension:.35}]},options:{...baseOpt,scales:{...baseOpt.scales,x:{...baseOpt.scales.x,ticks:{...baseOpt.scales.x.ticks,maxTicksLimit:8}}}}});
+
+  const q14=days14.map(k=>{const e=getEntry(k);return e?((e.q1||0)+(e.q2||0))/2||null:null;});
+  if(charts.qual) charts.qual.destroy();
+  charts.qual=new Chart(document.getElementById('chart-quality'),{type:'line',data:{labels:lbl14,datasets:[{data:q14,borderColor:'#2563a8',backgroundColor:'rgba(37,99,168,.08)',fill:true,pointRadius:4,pointBackgroundColor:'#2563a8',tension:.35,spanGaps:true}]},options:{...baseOpt,scales:{...baseOpt.scales,y:{min:0,max:5,ticks:{stepSize:1,color:tc,font:{size:10},callback:v=>qLabel(v)||''}},x:{grid:{display:false},ticks:{color:tc,font:{size:10}}}}}});
+
+  const typeMap={};
+  ST.data.forEach(e=>{[...(e.types1||[]),...(e.types2||[])].forEach(t=>{typeMap[t]=(typeMap[t]||0)+(e.mins1||0)/Math.max(1,(e.types1||[]).length)+(e.mins2||0)/Math.max(1,(e.types2||[]).length);});});
+  const tKeys=Object.keys(typeMap);
+  if(charts.types) charts.types.destroy();
+  if(tKeys.length){
+    charts.types=new Chart(document.getElementById('chart-types'),{type:'doughnut',data:{labels:tKeys,datasets:[{data:tKeys.map(k=>Math.round(typeMap[k])),backgroundColor:TYPE_COLORS.slice(0,tKeys.length),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'55%'}});
+    document.getElementById('types-legend').innerHTML=tKeys.map((k,i)=>`<div class="lg-item"><div class="lg-dot" style="background:${TYPE_COLORS[i]}"></div>${k}</div>`).join('');
+  }
+}
+
+// ── RECOMMENDATIONS ──
+function renderRec(){
+  const days14=getLast(14);
+  const actuals=days14.map(k=>{const e=getEntry(k);return e?(e.mins1||0)+(e.mins2||0):0;});
+  const total=actuals.reduce((a,b)=>a+b,0);
+  const planned=(ST.goal1+ST.goal2)*14;
+  const pct=planned>0?total/planned:0;
+  const nonZ=actuals.filter(x=>x>0);
+  const morning=days14.filter(k=>{const e=getEntry(k);return e&&e.mins1>0;}).length;
+  const evening=days14.filter(k=>{const e=getEntry(k);return e&&e.mins2>0;}).length;
+  const both=days14.filter(k=>{const e=getEntry(k);return e&&e.mins1>0&&e.mins2>0;}).length;
+
+  const recs=[];
+  if(nonZ.length===0){recs.push({i:'🙏',t:'<strong>Bắt đầu hành trình.</strong> Ghi lại buổi thiền đầu tiên hôm nay. Dù chỉ 10 phút buổi sáng — tâm cũng được hưởng lợi.'});}
+  else if(pct<0.5){recs.push({i:'⚠️',t:`<strong>Đạt ${Math.round(pct*100)}% kế hoạch 2 tuần.</strong> Cân nhắc giảm mục tiêu để dễ duy trì hơn.`});}
+  else if(pct>=0.9){recs.push({i:'✅',t:`<strong>Xuất sắc!</strong> Đạt ${Math.round(pct*100)}% kế hoạch. Có thể tăng thêm 5 ph mỗi thời.`});}
+  else{recs.push({i:'📈',t:`<strong>Tiến bộ tốt</strong> — ${Math.round(pct*100)}% kế hoạch 2 tuần qua.`});}
+
+  if(morning>evening+3){recs.push({i:'🌙',t:'<strong>Buổi tối còn yếu.</strong> Bạn thiền sáng đều hơn tối. Thêm 20–30 ph Mettā buổi tối giúp tâm an trước khi ngủ.'});}
+  else if(evening>morning+3){recs.push({i:'🌅',t:'<strong>Buổi sáng còn yếu.</strong> Ānāpānasati buổi sáng sớm tạo nền tảng định tĩnh cho cả ngày.'});}
+  if(both<7){recs.push({i:'⚖️',t:`<strong>Chỉ ${both}/14 ngày đủ 2 thời.</strong> Hai thời thiền mỗi ngày là lý tưởng trong truyền thống Pa-Auk. Cố gắng đủ cả sáng lẫn tối.`});}
+
+  const qAll=ST.data.filter(e=>e.q1||e.q2).map(e=>((e.q1||0)+(e.q2||0))/(+(!!e.q1)+(+(!!e.q2))));
+  if(qAll.length>3){const avgQ=qAll.reduce((a,b)=>a+b,0)/qAll.length;if(avgQ<2.5)recs.push({i:'🧠',t:'<strong>Tâm hay tán loạn.</strong> Thử ngồi sớm hơn buổi sáng (trước 6h) — tâm trong trẻo nhất trước khi tiếp xúc với các hoạt động ngày.'});}
+
+  document.getElementById('rec-list').innerHTML=recs.map(r=>`<div class="rec-item"><span class="rec-ico">${r.i}</span><div class="rec-body">${r.t}</div></div>`).join('');
+
+  const ach=[];
+  let streak=0; for(let i=0;;i++){const e=getEntry(getDK(i));if(!e||(!e.mins1&&!e.mins2))break;streak++;}
+  if(streak>=3)ach.push(`🔥 ${streak} ngày thiền liên tiếp`);
+  if(streak>=7)ach.push('⭐ 7 ngày không gián đoạn');
+  if(streak>=30)ach.push('🏆 30 ngày tinh tấn');
+  const totalEver=ST.data.reduce((a,e)=>a+(e.mins1||0)+(e.mins2||0),0);
+  if(totalEver>=500)ach.push('🏅 500+ phút tích lũy');
+  if(totalEver>=2000)ach.push('🥇 2000+ phút — Hành giả');
+  if(totalEver>=10000)ach.push('💎 10.000 phút — Bậc tinh tấn');
+  const bothDays=ST.data.filter(e=>e.mins1>0&&e.mins2>0).length;
+  if(bothDays>=10)ach.push('🌟 10 ngày đủ 2 thời');
+  if(bothDays>=30)ach.push('☀️ 30 ngày đủ 2 thời');
+  document.getElementById('achievements').innerHTML=ach.length?ach.map(a=>`<div class="ach-item" style="padding:8px 0;border-bottom:.5px solid var(--border);font-size:13px;color:var(--ink)">${a}</div>`).join(''):'<div style="color:var(--muted);font-size:13px;padding:8px 0">Tiếp tục thiền để mở thành tích.</div>';
+}
+
+// ── RENDER ALL ──
+function renderAll(){
+  const today=new Date();
+  document.getElementById('hdr-date').textContent=DAYS7[today.getDay()]+', '+today.getDate()+'/'+(today.getMonth()+1)+'/'+today.getFullYear();
+  renderToday();
+  renderStreak();
+  renderPlanPage();
+}
+
+// Init
+load();
+document.getElementById('goal1-slider').value=ST.goal1;
+document.getElementById('goal1-val').textContent=ST.goal1+' ph';
+document.getElementById('goal2-slider').value=ST.goal2;
+document.getElementById('goal2-val').textContent=ST.goal2+' ph';
+timerReset();
+renderAll();
+</script>
+</body>
+</html>
