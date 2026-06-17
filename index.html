@@ -241,166 +241,153 @@ input[type=range]{width:100%;accent-color:var(--teal)}
 <!-- ══════════ HÔM NAY ══════════ -->
 <div class="page on" id="pg-today">
 
-  <div class="card">
-    <div class="card-hd">Hai thời thiền hôm nay</div>
-    <div class="session-pair">
-      <div class="sess-block" id="sess1-card" onclick="openLogModal(1)">
-        <div class="sess-lbl">🌅 Buổi sáng</div>
-        <div class="sess-mins" id="sess1-mins">— ph</div>
-        <div class="sess-type" id="sess1-type">Chưa ghi</div>
-        <div class="sess-status" id="sess1-status">Nhấn để ghi</div>
+  <!-- ROW 1: 2 thời + tổng kết -->
+  <div class="card" style="padding:10px 12px;margin-bottom:8px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <div class="sess-block" id="sess1-card" onclick="openLogModal(1)" style="padding:9px 10px">
+        <div class="sess-lbl">🌅 Sáng</div>
+        <div class="sess-mins" id="sess1-mins" style="font-size:17px">— ph</div>
+        <div class="sess-type" id="sess1-type" style="font-size:10px">Chưa ghi</div>
+        <div class="sess-status" id="sess1-status" style="font-size:10px">Nhấn để ghi</div>
       </div>
-      <div class="sess-block" id="sess2-card" onclick="openLogModal(2)">
-        <div class="sess-lbl">🌙 Buổi tối</div>
-        <div class="sess-mins" id="sess2-mins">— ph</div>
-        <div class="sess-type" id="sess2-type">Chưa ghi</div>
-        <div class="sess-status" id="sess2-status">Nhấn để ghi</div>
+      <div class="sess-block" id="sess2-card" onclick="openLogModal(2)" style="padding:9px 10px">
+        <div class="sess-lbl">🌙 Tối</div>
+        <div class="sess-mins" id="sess2-mins" style="font-size:17px">— ph</div>
+        <div class="sess-type" id="sess2-type" style="font-size:10px">Chưa ghi</div>
+        <div class="sess-status" id="sess2-status" style="font-size:10px">Nhấn để ghi</div>
       </div>
     </div>
-    <div class="mrow" style="margin-bottom:0">
-      <div class="mcell"><div class="mcell-label">Tổng hôm nay</div><div class="mcell-val" id="today-total">0<span class="mcell-unit"> ph</span></div></div>
-      <div class="mcell">
-        <div class="mcell-label">Hoàn thành ngày</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-          <div style="flex:1;height:8px;background:var(--surface3);border-radius:4px;overflow:hidden">
-            <div id="today-bar" style="height:100%;border-radius:4px;transition:width .5s ease;width:0%"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="flex:1">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Hoàn thành hôm nay</div>
+        <div style="height:7px;background:var(--surface3);border-radius:4px;overflow:hidden">
+          <div id="today-bar" style="height:100%;border-radius:4px;transition:width .5s;width:0%"></div>
+        </div>
+      </div>
+      <span id="today-pct" style="font-size:15px;font-weight:700;min-width:42px;text-align:right">0%</span>
+      <span id="daily-result-badge" style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;background:var(--surface3);color:var(--muted)">—</span>
+    </div>
+  </div>
+
+  <!-- ROW 2: KH/TT + Đồng hồ (1 hàng ngang) -->
+  <div class="card" style="padding:10px 12px;margin-bottom:8px">
+    <div style="display:flex;gap:10px;align-items:flex-start">
+
+      <!-- Trái: KH hôm nay + chuông + đồng hồ -->
+      <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="position:relative;width:86px;height:86px">
+          <svg width="86" height="86" viewBox="0 0 86 86" style="transform:rotate(-90deg)">
+            <circle fill="none" stroke="var(--surface3)" stroke-width="6" cx="43" cy="43" r="37"/>
+            <circle id="timer-ring" fill="none" stroke="var(--teal)" stroke-width="6" stroke-linecap="round" cx="43" cy="43" r="37" stroke-dasharray="232.5" stroke-dashoffset="0"/>
+          </svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+            <div id="timer-display" style="font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.5px">30:00</div>
+            <div id="timer-state-lbl" style="font-size:8px;color:var(--muted)">Sẵn sàng</div>
           </div>
-          <span id="today-pct" style="font-size:16px;font-weight:700;min-width:38px;text-align:right">0%</span>
+        </div>
+        <div style="display:flex;gap:4px;width:100%;margin-bottom:4px">
+          <button onclick="adjTimerMins(-5)" style="border:none;background:var(--surface3);border-radius:6px;flex:1;padding:5px 0;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink)">−5</button>
+          <button onclick="adjTimerMins(5)" style="border:none;background:var(--surface3);border-radius:6px;flex:1;padding:5px 0;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink)">+5</button>
+        </div>
+        <div style="display:flex;gap:4px;width:100%">
+          <button class="tbtn start" id="timer-start-btn" onclick="timerStartStop()" style="flex:1;padding:7px 0;font-size:12px">▶</button>
+          <button class="tbtn" id="timer-reset-btn" onclick="timerReset()" style="padding:7px 10px;font-size:12px">↺</button>
+        </div>
+      </div>
+
+      <!-- Phải: KH/TT + KH đặc biệt + chuông -->
+      <div style="flex:1;min-width:0">
+        <!-- KH vs TT -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">
+          <div style="background:var(--surface2);border-radius:6px;padding:6px 8px">
+            <div style="font-size:9px;color:var(--muted);font-weight:600;margin-bottom:3px">🎯 KẾ HOẠCH</div>
+            <div style="font-size:11px;color:var(--muted)">🌅 <span id="ti-goal1" style="font-weight:700;color:var(--ink)">—</span></div>
+            <div style="font-size:11px;color:var(--muted)">🌙 <span id="ti-goal2" style="font-weight:700;color:var(--ink)">—</span></div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:6px 8px">
+            <div style="font-size:9px;color:var(--muted);font-weight:600;margin-bottom:3px">✅ THỰC TẾ</div>
+            <div style="font-size:11px;color:var(--muted)">🌅 <span id="ti-act1" style="font-weight:700;color:var(--teal)">—</span></div>
+            <div style="font-size:11px;color:var(--muted)">🌙 <span id="ti-act2" style="font-weight:700;color:var(--teal)">—</span></div>
+          </div>
+        </div>
+
+        <!-- KH đặc biệt — thu gọn -->
+        <div style="background:var(--surface2);border-radius:6px;padding:6px 8px;margin-bottom:6px">
+          <div style="font-size:9px;font-weight:600;margin-bottom:4px" id="today-special-hint" style="color:var(--muted)">⏱ KH đặc biệt hôm nay</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span style="font-size:9px;color:var(--muted)">🌅</span>
+            <button onclick="adjTodayPlan(1,-5)" style="border:none;background:var(--surface3);border-radius:4px;width:18px;height:18px;cursor:pointer;font-size:12px;color:var(--ink);line-height:1;display:flex;align-items:center;justify-content:center">−</button>
+            <span id="today-plan1-val" style="font-size:12px;font-weight:700;min-width:28px;text-align:center;color:var(--ink)">—</span>
+            <button onclick="adjTodayPlan(1,5)" style="border:none;background:var(--surface3);border-radius:4px;width:18px;height:18px;cursor:pointer;font-size:12px;color:var(--ink);line-height:1;display:flex;align-items:center;justify-content:center">+</button>
+            <span style="font-size:9px;color:var(--muted);margin-left:4px">🌙</span>
+            <button onclick="adjTodayPlan(2,-5)" style="border:none;background:var(--surface3);border-radius:4px;width:18px;height:18px;cursor:pointer;font-size:12px;color:var(--ink);line-height:1;display:flex;align-items:center;justify-content:center">−</button>
+            <span id="today-plan2-val" style="font-size:12px;font-weight:700;min-width:28px;text-align:center;color:var(--ink)">—</span>
+            <button onclick="adjTodayPlan(2,5)" style="border:none;background:var(--surface3);border-radius:4px;width:18px;height:18px;cursor:pointer;font-size:12px;color:var(--ink);line-height:1;display:flex;align-items:center;justify-content:center">+</button>
+            <button onclick="resetTodayPlan()" style="margin-left:auto;border:none;background:transparent;font-size:10px;color:var(--muted);cursor:pointer">↺</button>
+          </div>
+        </div>
+
+        <!-- Chuông — 1 hàng -->
+        <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+          <span style="font-size:10px;color:var(--muted)">🔔</span>
+          <div style="display:flex;gap:3px;flex-wrap:wrap;flex:1" id="bell-selector">
+            <button class="bell-opt on" onclick="selectBell(this,'bowl')" style="padding:3px 6px;font-size:10px">🎵</button>
+            <button class="bell-opt" onclick="selectBell(this,'singing')" style="padding:3px 6px;font-size:10px">🔔</button>
+            <button class="bell-opt" onclick="selectBell(this,'ding')" style="padding:3px 6px;font-size:10px">🔮</button>
+            <button class="bell-opt" onclick="selectBell(this,'gong')" style="padding:3px 6px;font-size:10px">🥁</button>
+            <button class="bell-opt" onclick="selectBell(this,'soft')" style="padding:3px 6px;font-size:10px">🍃</button>
+            <button class="bell-opt" onclick="selectBell(this,'triple')" style="padding:3px 6px;font-size:10px">✨</button>
+          </div>
+          <button onclick="previewBell()" style="padding:3px 8px;border-radius:4px;border:1px solid var(--border2);background:transparent;font-size:10px;color:var(--teal);cursor:pointer">▶</button>
+          <label class="toggle" title="Chuông kết thúc"><input type="checkbox" id="bell-end" checked><span class="toggle-slider"></span></label>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- TIMER -->
-  <div class="card">
-    <div class="card-hd">Đồng hồ thiền
-      <span id="timer-sess-label" style="font-size:11px;color:var(--teal)">Buổi sáng</span>
+  <!-- ROW 3: Biểu đồ tháng tách sáng/tối -->
+  <div class="card" style="padding:10px 12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <span style="font-size:10px;font-weight:600;color:var(--muted)">THỰC TẾ vs KẾ HOẠCH — THÁNG NÀY</span>
+      <span id="month-pva-pct" style="font-size:11px;font-weight:700;color:var(--teal)">0%</span>
     </div>
-    <div class="sess-select">
-      <div class="sess-select-row">
-        <button class="ssbtn on" id="tss1" onclick="selectTimerSess(1)">🌅 Buổi sáng</button>
-        <button class="ssbtn" id="tss2" onclick="selectTimerSess(2)">🌙 Buổi tối</button>
+    <!-- Thanh tiến độ nhỏ -->
+    <div style="height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-bottom:8px">
+      <div id="mpva-progress" style="height:100%;border-radius:3px;background:var(--teal);transition:width .5s;width:0%"></div>
+    </div>
+    <!-- Số liệu 4 ô nhỏ -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:8px">
+      <div style="background:var(--surface2);border-radius:6px;padding:5px 6px;text-align:center">
+        <div style="font-size:14px;font-weight:700;color:var(--ink)" id="mpva-actual">0</div>
+        <div style="font-size:9px;color:var(--muted)">Đã thiền</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:6px;padding:5px 6px;text-align:center">
+        <div style="font-size:14px;font-weight:700;color:var(--ink)" id="mpva-plan">0</div>
+        <div style="font-size:9px;color:var(--muted)">KH tháng</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:6px;padding:5px 6px;text-align:center">
+        <div style="font-size:14px;font-weight:700;color:var(--teal)" id="mpva-full">0</div>
+        <div style="font-size:9px;color:var(--muted)">Đủ 2 thời</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:6px;padding:5px 6px;text-align:center">
+        <div style="font-size:14px;font-weight:700;color:var(--rose)" id="mpva-miss">0</div>
+        <div style="font-size:9px;color:var(--muted)">Thiếu/bỏ</div>
       </div>
     </div>
-    <!-- KẾ HOẠCH / THỰC TẾ HÔM NAY — trên đồng hồ -->
-    <div style="background:var(--surface2);border-radius:var(--r);border:1px solid var(--border);padding:10px 12px;margin-bottom:8px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-        <div>
-          <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">🎯 Kế hoạch hôm nay</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Sáng: <span id="ti-goal1" style="font-weight:700;color:var(--ink)">30 ph</span></div>
-          <div style="font-size:11px;color:var(--muted)">Tối: <span id="ti-goal2" style="font-weight:700;color:var(--ink)">30 ph</span></div>
-        </div>
-        <div>
-          <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">✅ Thực tế hôm nay</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Sáng: <span id="ti-act1" style="font-weight:700;color:var(--teal)">— ph</span></div>
-          <div style="font-size:11px;color:var(--muted)">Tối: <span id="ti-act2" style="font-weight:700;color:var(--teal)">— ph</span></div>
-        </div>
-      </div>
-      <!-- Đánh giá OK / NG -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="text-align:center">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Buổi sáng</div>
-          <div style="display:flex;gap:6px;justify-content:center">
-            <button id="ok1-btn" onclick="setRating(1,'OK')" style="flex:1;padding:6px 0;border-radius:8px;border:1.5px solid var(--border2);font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s">OK</button>
-            <button id="ng1-btn" onclick="setRating(1,'NG')" style="flex:1;padding:6px 0;border-radius:8px;border:1.5px solid var(--border2);font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s">NG</button>
-          </div>
-        </div>
-        <div style="text-align:center">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Buổi tối</div>
-          <div style="display:flex;gap:6px;justify-content:center">
-            <button id="ok2-btn" onclick="setRating(2,'OK')" style="flex:1;padding:6px 0;border-radius:8px;border:1.5px solid var(--border2);font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s">OK</button>
-            <button id="ng2-btn" onclick="setRating(2,'NG')" style="flex:1;padding:6px 0;border-radius:8px;border:1.5px solid var(--border2);font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s">NG</button>
-          </div>
-        </div>
-      </div>
+    <!-- Biểu đồ tháng: canvas -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:2px;background:#0e7f6e"></div>Sáng ≥KH</div>
+      <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:2px;background:rgba(14,127,110,.35)"></div>Sáng &lt;KH</div>
+      <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:2px;background:#8b3a52"></div>Tối ≥KH</div>
+      <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:2px;background:rgba(139,58,82,.35)"></div>Tối &lt;KH</div>
+      <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:16px;height:2px;background:#b8860b"></div>KH sáng</div>
+      <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:16px;height:0;border-top:2px dashed #8b3a52"></div>KH tối</div>
     </div>
-
-    <div class="timer-setup">
-      <div class="tset">
-        <div class="tset-label">Thời gian (ph)</div>
-        <div class="tset-row">
-          <button onclick="adjTimer(-5)">−</button>
-          <span class="tset-val" id="timer-set-val">30</span>
-          <button onclick="adjTimer(5)">+</button>
-        </div>
-      </div>
-      <div class="tset">
-        <div class="tset-label">Chuông nhắc (ph)</div>
-        <div class="tset-row">
-          <button onclick="adjBell(-5)">−</button>
-          <span class="tset-val" id="bell-interval-val">10</span>
-          <button onclick="adjBell(5)">+</button>
-        </div>
-      </div>
+    <div style="position:relative;width:100%;height:90px">
+      <canvas id="month-chart-canvas" role="img" aria-label="Biểu đồ thiền tháng tách sáng tối"></canvas>
     </div>
-
-    <!-- CHỌN LOẠI CHUÔNG -->
-    <div style="background:var(--surface2);border-radius:var(--r);border:1px solid var(--border);padding:10px 12px;margin-bottom:8px">
-      <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">🔔 Chọn loại chuông</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px" id="bell-selector">
-        <button class="bell-opt on" onclick="selectBell(this,'bowl')" data-bell="bowl">🎵 Đồng</button>
-        <button class="bell-opt" onclick="selectBell(this,'singing')" data-bell="singing">🔔 Singing</button>
-        <button class="bell-opt" onclick="selectBell(this,'ding')" data-bell="ding">🔮 Ding</button>
-        <button class="bell-opt" onclick="selectBell(this,'gong')" data-bell="gong">🥁 Cồng</button>
-        <button class="bell-opt" onclick="selectBell(this,'soft')" data-bell="soft">🍃 Nhẹ</button>
-        <button class="bell-opt" onclick="selectBell(this,'triple')" data-bell="triple">✨ Ba tiếng</button>
-      </div>
-      <button onclick="previewBell()" style="width:100%;margin-top:8px;padding:7px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;font-size:12px;font-weight:600;color:var(--teal);cursor:pointer">▶ Thử chuông</button>
-    </div>
-
-    <div class="bell-row">
-      <div class="bell-info">Chuông kết thúc<small>Âm thanh báo hết giờ</small></div>
-      <label class="toggle"><input type="checkbox" id="bell-end" checked><span class="toggle-slider"></span></label>
-    </div>
-    <div class="bell-row">
-      <div class="bell-info">Chuông nhắc giữa giờ<small>Mỗi <span id="bell-int-display">10</span> phút</small></div>
-      <label class="toggle"><input type="checkbox" id="bell-mid"><span class="toggle-slider"></span></label>
-    </div>
-
-    <div class="timer-face">
-      <div class="timer-ring-wrap">
-        <svg viewBox="0 0 180 180"><circle class="timer-bg-ring" cx="90" cy="90" r="82"/><circle class="timer-progress" id="timer-ring" cx="90" cy="90" r="82" stroke-dasharray="515.2" stroke-dashoffset="0"/></svg>
-        <div class="timer-center">
-          <div class="timer-time" id="timer-display">30:00</div>
-          <div class="timer-label" id="timer-state-lbl">Sẵn sàng</div>
-        </div>
-      </div>
-      <div class="timer-btns">
-        <button class="tbtn start" id="timer-start-btn" onclick="timerStartStop()">▶ Bắt đầu</button>
-        <button class="tbtn" id="timer-reset-btn" onclick="timerReset()">↺ Đặt lại</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- KẾ HOẠCH VS THỰC TẾ THÁNG NÀY -->
-  <div class="card">
-    <div class="card-hd">Kế hoạch vs Thực tế — tháng này
-      <span id="month-pva-pct" style="font-size:12px;font-weight:700;color:var(--teal)">0%</span>
-    </div>
-    <div class="mrow" style="margin-bottom:10px">
-      <div class="mcell"><div class="mcell-label">Đã thiền</div><div class="mcell-val" id="mpva-actual">0<span class="mcell-unit"> ph</span></div></div>
-      <div class="mcell"><div class="mcell-label">Kế hoạch</div><div class="mcell-val" id="mpva-plan">0<span class="mcell-unit"> ph</span></div></div>
-      <div class="mcell"><div class="mcell-label">Ngày đủ 2 thời</div><div class="mcell-val" id="mpva-full">0<span class="mcell-unit"> ng</span></div></div>
-      <div class="mcell"><div class="mcell-label">Ngày thiếu/bỏ</div><div class="mcell-val" id="mpva-miss">0<span class="mcell-unit"> ng</span></div></div>
-    </div>
-    <!-- Progress bar tổng -->
-    <div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px">
-        <span>Tiến độ tháng</span><span id="mpva-bar-label">0 / 0 ph</span>
-      </div>
-      <div style="height:10px;background:var(--surface3);border-radius:5px;overflow:hidden">
-        <div id="mpva-progress" style="height:100%;border-radius:5px;background:var(--teal);transition:width .5s ease;width:0%"></div>
-      </div>
-    </div>
-    <!-- Bars từng ngày trong tháng -->
-    <div class="card-hd" style="margin-bottom:6px">Chi tiết từng ngày</div>
-    <div class="lg" style="margin-bottom:8px">
-      <div class="lg-item"><div class="lg-dot" style="background:#0e7f6e"></div>Đủ 2 thời</div>
-      <div class="lg-item"><div class="lg-dot" style="background:#e8c84a"></div>1 thời</div>
-      <div class="lg-item"><div class="lg-dot" style="background:var(--surface3)"></div>Kế hoạch</div>
-    </div>
-    <div id="month-pva-bars" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;align-items:end;height:80px"></div>
-    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:3px" id="month-pva-labels"></div>
+    <div id="month-pva-bars" style="display:none"></div>
+    <div id="month-pva-labels" style="display:none"></div>
   </div>
 
 </div>
@@ -574,9 +561,7 @@ let ST = {
 };
 
 let logSessNum = 1;
-let timerSessNum = 1;
 let timerMins = 30;
-let bellInterval = 10;
 let timerInterval = null;
 let timerRemaining = 0;
 let timerTotal = 0;
@@ -584,7 +569,6 @@ let timerRunning = false;
 let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth();
 let charts = {};
-let bellTimeouts = [];
 let audioCtx = null;
 
 function save(){ try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){} }
@@ -658,8 +642,8 @@ function getAudioCtx(){
 let bellType = 'bowl';
 
 function selectBell(el, type){
-  bellType = type;
-  document.querySelectorAll('.bell-opt').forEach(b => b.classList.remove('on'));
+  bellType = type||el.dataset.bell||'bowl';
+  document.querySelectorAll('#bell-selector .bell-opt').forEach(b => b.classList.remove('on'));
   el.classList.add('on');
 }
 
@@ -696,53 +680,121 @@ function ringBell(type, vol=0.5){
   }catch(e){}
 }
 
-function adjTimer(delta){
-  if(timerRunning) return;
-  timerMins=Math.max(5,Math.min(180,timerMins+delta));
-  document.getElementById('timer-set-val').textContent=timerMins;
-  timerReset();
-}
-function adjBell(delta){
-  bellInterval=Math.max(5,Math.min(60,bellInterval+delta));
-  document.getElementById('bell-interval-val').textContent=bellInterval;
-  document.getElementById('bell-int-display').textContent=bellInterval;
+function getTodayPlan(){
+  const k=getDK(); const e=getEntry(k);
+  return {
+    p1: (e&&e.todayPlan1) || ST.goal1,
+    p2: (e&&e.todayPlan2) || ST.goal2
+  };
 }
 
-function selectTimerSess(n){
-  timerSessNum=n;
-  document.getElementById('tss1').classList.toggle('on',n===1);
-  document.getElementById('tss2').classList.toggle('on',n===2);
-  document.getElementById('timer-sess-label').textContent=n===1?'Buổi sáng':'Buổi tối';
+function adjTodayPlan(sess, delta){
+  const k=getDK(); let e=getEntry(k);
+  if(!e){e={date:k,mins1:0,mins2:0,q1:3,q2:3,types1:[],types2:[]};ST.data.push(e);}
+  if(sess===1){
+    e.todayPlan1=Math.max(5,Math.min(1200,(e.todayPlan1||ST.goal1)+delta));
+  } else {
+    e.todayPlan2=Math.max(5,Math.min(1200,(e.todayPlan2||ST.goal2)+delta));
+  }
+  save(); renderTodayPlanUI(); renderTimerInfo(); renderAll();
+}
+
+function resetTodayPlan(){
+  const k=getDK(); const e=getEntry(k);
+  if(e){ delete e.todayPlan1; delete e.todayPlan2; save(); }
+  renderTodayPlanUI(); renderTimerInfo(); renderAll();
+  toast('Đã dùng lại kế hoạch tháng');
+}
+
+function renderTodayPlanUI(){
+  const p=getTodayPlan();
+  document.getElementById('today-plan1-val').textContent=p.p1;
+  document.getElementById('today-plan2-val').textContent=p.p2;
+  const k=getDK(); const e=getEntry(k);
+  const custom1=e&&e.todayPlan1&&e.todayPlan1!==ST.goal1;
+  const custom2=e&&e.todayPlan2&&e.todayPlan2!==ST.goal2;
+  const hint=document.getElementById('today-special-hint');
+  if(custom1||custom2){
+    hint.textContent='⚡ Đang dùng kế hoạch đặc biệt hôm nay';
+    hint.style.color='var(--gold)';
+  } else {
+    hint.textContent='Có thể đặt khác kế hoạch tháng nếu cần';
+    hint.style.color='var(--muted)';
+  }
+}
+
+function adjTimerMins(delta){
+  if(timerRunning) return;
+  timerMins=Math.max(5,Math.min(1200,timerMins+delta));
+  timerRemaining=timerMins*60; timerTotal=timerMins*60;
+  document.getElementById('timer-display').textContent=timerFmt(timerRemaining);
+  const sess=getActiveSession();
+  const sessIcon=sess===1?'🌅':'🌙';
+  document.getElementById('timer-start-btn').innerHTML='▶ '+sessIcon+' '+timerMins+' ph';
+  updateRing(1,1);
+}
+
+function adjTimer(delta){
+  if(timerRunning) return;
+  timerMins=Math.max(5,Math.min(1200,timerMins+delta));
+  timerReset();
 }
 
 function timerFmt(s){ const m=Math.floor(s/60); return String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
 
 function updateRing(remaining,total){
-  const r=82; const circ=2*Math.PI*r;
+  const r=37; const circ=2*Math.PI*r;
   const frac=total>0?remaining/total:1;
   const offset=circ*(1-frac);
   const ring=document.getElementById('timer-ring');
+  if(!ring) return;
   ring.style.strokeDasharray=circ.toFixed(1);
   ring.style.strokeDashoffset=offset.toFixed(1);
   ring.style.stroke=frac>0.2?'var(--teal)':'var(--rose)';
+}
+
+function renderInlineChart(){
+  const days=getLast(7);
+  const p=getTodayPlan();
+  const goalPerDay=p.p1+p.p2;
+  const actuals=days.map(k=>{const e=getEntry(k);return e?(e.mins1||0)+(e.mins2||0):0;});
+  const maxV=Math.max(goalPerDay,...actuals,10);
+  const H=48; // bar height px
+
+  const barsEl=document.getElementById('inline-chart');
+  const lblsEl=document.getElementById('inline-chart-labels');
+  if(!barsEl||!lblsEl) return;
+
+  // goal line % height
+  const goalPct=Math.round(goalPerDay/maxV*100);
+
+  let barsHtml=''; let lblsHtml='';
+  days.forEach((k,i)=>{
+    const actual=actuals[i];
+    const actPct=Math.round(actual/maxV*100);
+    const color=actual>=goalPerDay?'#0e7f6e':'#2563a8';
+    const isToday=k===getDK();
+    const d=new Date(k); const lbl=DAYS7[d.getDay()];
+    barsHtml+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:${H}px;position:relative">
+      <!-- goal line -->
+      <div style="position:absolute;left:0;right:0;bottom:${goalPct}%;height:2px;background:var(--gold);border-radius:1px;z-index:2"></div>
+      <!-- actual bar -->
+      <div style="width:100%;height:${actPct}%;background:${color};border-radius:3px 3px 0 0;min-height:${actual>0?2:0}px;position:relative;z-index:1${isToday?';outline:1.5px solid var(--teal);outline-offset:1px':''}"></div>
+    </div>`;
+    lblsHtml+=`<div style="flex:1;text-align:center;font-size:9px;color:${isToday?'var(--teal)':'var(--muted)'};font-weight:${isToday?'700':'400'}">${lbl}</div>`;
+  });
+
+  barsEl.innerHTML=barsHtml;
+  lblsEl.innerHTML=lblsHtml;
 }
 
 function timerStartStop(){
   if(!timerRunning){
     if(timerRemaining<=0){ timerTotal=timerMins*60; timerRemaining=timerTotal; }
     timerRunning=true;
-    document.getElementById('timer-start-btn').textContent='⏸ Jừng';
+    document.getElementById('timer-start-btn').textContent='⏸ Đang chạy';
     document.getElementById('timer-start-btn').className='tbtn stop';
     document.getElementById('timer-state-lbl').textContent='Đang thiền…';
-    // schedule interval bells
-    bellTimeouts.forEach(clearTimeout);
-    bellTimeouts=[];
-    if(document.getElementById('bell-mid').checked){
-      const iv=bellInterval*60;
-      for(let t=iv;t<timerRemaining;t+=iv){
-        bellTimeouts.push(setTimeout(()=>ringBell(bellType,0.35),t*1000));
-      }
-    }
     timerInterval=setInterval(()=>{
       timerRemaining--;
       document.getElementById('timer-display').textContent=timerFmt(timerRemaining);
@@ -756,26 +808,34 @@ function timerStartStop(){
         // auto-log
         const k=getDK(); let e=getEntry(k);
         if(!e){e={date:k,mins1:0,mins2:0,q1:3,q2:3,types1:[],types2:[]};ST.data.push(e);}
-        if(timerSessNum===1){if(!e.mins1){e.mins1=timerMins;e.types1=['Ānāpāna'];}}
-        else{if(!e.mins2){e.mins2=timerMins;e.types2=['Ānāpāna'];}}
+        if(!e.mins1){e.mins1=timerMins;e.types1=["Ānāpāna"];}
+        else if(!e.mins2){e.mins2=timerMins;e.types2=["Ānāpāna"];}
         save(); renderAll(); toast('🔔 Hết giờ! Đã ghi '+timerMins+' ph');
       }
     },1000);
   } else {
     clearInterval(timerInterval); timerRunning=false;
-    bellTimeouts.forEach(clearTimeout);
-    document.getElementById('timer-start-btn').textContent='▶ Tiếp tục';
+    const _sl=getActiveSession();document.getElementById('timer-start-btn').innerHTML='▶ '+(_sl===1?'🌅':'🌙')+' Tiếp tục';
     document.getElementById('timer-start-btn').className='tbtn start';
     document.getElementById('timer-state-lbl').textContent='Đã dừng';
   }
 }
 
+function getActiveSession(){
+  // Xác định buổi đang cần thiền: sáng chưa ghi → buổi sáng, sáng xong → buổi tối
+  const k=getDK(); const e=getEntry(k);
+  return (!e||!e.mins1) ? 1 : 2;
+}
+
 function timerReset(){
   clearInterval(timerInterval); timerRunning=false;
-  bellTimeouts.forEach(clearTimeout);
+  const p=getTodayPlan();
+  const sess=getActiveSession();
+  timerMins = sess===1 ? p.p1 : p.p2;
   timerRemaining=timerMins*60; timerTotal=timerMins*60;
   document.getElementById('timer-display').textContent=timerFmt(timerRemaining);
-  document.getElementById('timer-start-btn').textContent='▶ Bắt đầu';
+  const sessLabel=sess===1?'🌅 Sáng — '+p.p1+' ph':'🌙 Tối — '+p.p2+' ph';
+  document.getElementById('timer-start-btn').innerHTML='▶ '+sessLabel;
   document.getElementById('timer-start-btn').className='tbtn start';
   document.getElementById('timer-state-lbl').textContent='Sẵn sàng';
   updateRing(1,1);
@@ -784,9 +844,11 @@ function timerReset(){
 // ── RENDER TODAY ──
 function renderToday(){
   const k=getDK(); const e=getEntry(k);
-  const m1=e?e.mins1:0; const m2=e?e.mins2:0;
+  const m1=e?e.mins1||0:0; const m2=e?e.mins2||0:0;
   const total=m1+m2;
-  const goal=ST.goal1+ST.goal2;
+  // Dùng kế hoạch đặc biệt hôm nay nếu có, fallback về kế hoạch tháng
+  const p=getTodayPlan();
+  const goal=p.p1+p.p2;
   const pct=goal>0?Math.round(total/goal*100):0;
   ['1','2'].forEach(n=>{
     const m=n==='1'?m1:m2;
@@ -797,11 +859,10 @@ function renderToday(){
     document.getElementById('sess'+n+'-status').textContent=m>0?'✓ Đã xong':'Nhấn để ghi';
     card.className='sess-block'+(m>0?' done':'');
   });
-  document.getElementById('today-total').innerHTML=total+'<span class="mcell-unit"> ph</span>';
   const todayColor=pct>=100?'#0e7f6e':pct>=70?'#e8c84a':'#8b3a52';
   const pctEl=document.getElementById('today-pct');
   pctEl.textContent=pct+'%';
-  pctEl.style.color=todayColor;
+  pctEl.style.color=pct>0?todayColor:'var(--muted)';
   const bar=document.getElementById('today-bar');
   bar.style.width=Math.min(100,pct)+'%';
   bar.style.background=todayColor;
@@ -1007,102 +1068,94 @@ function renderRec(){
 // ── RENDER ALL ──
 function renderMonthPVA(){
   const now=new Date();
-  const y=now.getFullYear(); const m=now.getMonth();
-  const daysInMonth=new Date(y,m+1,0).getDate();
+  const y=now.getFullYear(); const mo=now.getMonth();
+  const daysInMonth=new Date(y,mo+1,0).getDate();
   const todayD=now.getDate();
-  const goalPerDay=ST.goal1+ST.goal2;
-  const planTotal=goalPerDay*daysInMonth;
   let actualTotal=0; let fullDays=0; let missDays=0;
 
-  // build bar data
-  const barsEl=document.getElementById('month-pva-bars');
-  const lblsEl=document.getElementById('month-pva-labels');
-  let barsHtml=''; let lblsHtml='';
-
-  // find max for scaling
-  let maxMins=goalPerDay;
+  const labels=[]; const m1s=[]; const m2s=[];
+  const c1s=[]; const c2s=[];
   for(let d=1;d<=daysInMonth;d++){
-    const k=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const k=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     const e=getEntry(k);
-    if(e) maxMins=Math.max(maxMins,(e.mins1||0)+(e.mins2||0));
+    const m1=e?e.mins1||0:0; const m2=e?e.mins2||0:0;
+    actualTotal+=m1+m2;
+    const isPast=d<todayD;
+    if(m1>0||m2>0){if(m1>=ST.goal1&&m2>=ST.goal2)fullDays++;}
+    else if(isPast) missDays++;
+    labels.push(d%5===0||d===1||d===todayD?String(d):'');
+    m1s.push(m1); m2s.push(m2);
+    // colour by % of goal: ≥100% đậm, ≥70% vừa, <70% nhạt
+    const p1=ST.goal1>0?m1/ST.goal1:0;
+    const p2=ST.goal2>0?m2/ST.goal2:0;
+    c1s.push(p1>=1?'#0e7f6e':p1>=0.7?'rgba(14,127,110,.65)':'rgba(14,127,110,.3)');
+    c2s.push(p2>=1?'#8b3a52':p2>=0.7?'rgba(139,58,82,.65)':'rgba(139,58,82,.3)');
   }
 
-  for(let d=1;d<=daysInMonth;d++){
-    const k=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const e=getEntry(k);
-    const actual=e?(e.mins1||0)+(e.mins2||0):0;
-    actualTotal+=actual;
-    const isPast=d<todayD; const isToday=d===todayD;
-    const planH=Math.round(goalPerDay/maxMins*100);
-    const actH=Math.round(actual/maxMins*100);
-    let color='var(--surface3)';
-    if(actual>0){
-      const f1=e&&e.mins1>=ST.goal1; const f2=e&&e.mins2>=ST.goal2;
-      if(f1&&f2){color='#0e7f6e';fullDays++;}
-      else{color='#e8c84a';}
-    } else if(isPast){missDays++;}
-    const border=isToday?'outline:2px solid var(--teal);outline-offset:1px':'';
-    // plan bar (bg) + actual bar overlay
-    barsHtml+=`<div style="position:relative;height:100%;display:flex;align-items:flex-end;cursor:pointer" onclick="showDayDetail('${k}')">
-      <div style="position:absolute;bottom:0;left:0;right:0;height:${planH}%;background:var(--surface3);border-radius:3px 3px 0 0"></div>
-      <div style="position:relative;width:100%;height:${actH}%;background:${color};border-radius:3px 3px 0 0;${border}"></div>
-    </div>`;
-    // label: show date for Mon & 1st
-    const dayOfWeek=new Date(k).getDay();
-    const showLbl=d===1||dayOfWeek===1;
-    lblsHtml+=`<div style="font-size:9px;color:var(--muted);text-align:center">${showLbl?d:''}</div>`;
-  }
-
-  barsEl.innerHTML=barsHtml;
-  lblsEl.innerHTML=lblsHtml;
-
+  const planTotal=(ST.goal1+ST.goal2)*daysInMonth;
   const pct=planTotal>0?Math.round(actualTotal/planTotal*100):0;
-  document.getElementById('month-pva-pct').textContent=pct+'%';
-  document.getElementById('mpva-actual').innerHTML=actualTotal+'<span class="mcell-unit"> ph</span>';
-  document.getElementById('mpva-plan').innerHTML=planTotal+'<span class="mcell-unit"> ph</span>';
-  document.getElementById('mpva-full').innerHTML=fullDays+'<span class="mcell-unit"> ng</span>';
-  document.getElementById('mpva-miss').innerHTML=missDays+'<span class="mcell-unit"> ng</span>';
-  document.getElementById('mpva-bar-label').textContent=actualTotal+' / '+planTotal+' ph';
   const moColor=pct>=100?'#0e7f6e':pct>=70?'#e8c84a':'#8b3a52';
-  const moPctEl=document.getElementById('month-pva-pct');
-  moPctEl.textContent=pct+'%';
-  moPctEl.style.color=moColor;
+  document.getElementById('month-pva-pct').textContent=pct+'%';
+  document.getElementById('month-pva-pct').style.color=moColor;
+  document.getElementById('mpva-actual').textContent=actualTotal;
+  document.getElementById('mpva-plan').textContent=planTotal;
+  document.getElementById('mpva-full').textContent=fullDays;
+  document.getElementById('mpva-miss').textContent=missDays;
   document.getElementById('mpva-progress').style.width=Math.min(100,pct)+'%';
   document.getElementById('mpva-progress').style.background=moColor;
+
+  // Chart
+  if(charts.monthMain) charts.monthMain.destroy();
+  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const gc=isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
+  const tc=isDark?'#8888a8':'#7a7a8c';
+  // goal lines as datasets
+  charts.monthMain=new Chart(document.getElementById('month-chart-canvas'),{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Sáng',data:m1s,backgroundColor:c1s,borderRadius:2,borderSkipped:false,barPercentage:.45,categoryPercentage:1},
+        {label:'Tối',data:m2s,backgroundColor:c2s,borderRadius:2,borderSkipped:false,barPercentage:.45,categoryPercentage:1},
+        {label:'KH sáng',data:Array(daysInMonth).fill(ST.goal1),type:'line',borderColor:'#b8860b',borderWidth:1.5,pointRadius:0,tension:0,fill:false,order:0},
+        {label:'KH tối',data:Array(daysInMonth).fill(ST.goal2),type:'line',borderColor:'#8b3a52',borderWidth:1,borderDash:[4,3],pointRadius:0,tension:0,fill:false,order:0}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{callbacks:{title:([i])=>'Ngày '+(i.dataIndex+1),label:c=>c.dataset.label+': '+c.raw+' ph'}}},
+      scales:{
+        y:{beginAtZero:true,grid:{color:gc},ticks:{color:tc,font:{size:9},maxTicksLimit:4}},
+        x:{grid:{display:false},ticks:{color:tc,font:{size:8},maxRotation:0}}
+      }
+    }
+  });
 }
 
-function setRating(sessNum, val){
-  const k=getDK();
-  let e=getEntry(k);
-  if(!e){e={date:k,mins1:0,mins2:0,q1:3,q2:3,types1:[],types2:[]};ST.data.push(e);}
-  if(sessNum===1) e.rating1=val; else e.rating2=val;
-  save(); renderTimerInfo(); toast((sessNum===1?'Buổi sáng':'Buổi tối')+': '+val);
-}
 
 function renderTimerInfo(){
   const k=getDK(); const e=getEntry(k);
-  document.getElementById('ti-goal1').textContent=ST.goal1+' ph';
-  document.getElementById('ti-goal2').textContent=ST.goal2+' ph';
-  document.getElementById('ti-act1').textContent=e&&e.mins1?e.mins1+' ph':'— ph';
-  document.getElementById('ti-act2').textContent=e&&e.mins2?e.mins2+' ph':'— ph';
-  // Rating buttons sess 1
-  const r1=e?e.rating1:null;
-  const ok1=document.getElementById('ok1-btn'); const ng1=document.getElementById('ng1-btn');
-  ok1.style.background=r1==='OK'?'#0e7f6e':'transparent';
-  ok1.style.color=r1==='OK'?'#fff':'var(--muted)';
-  ok1.style.borderColor=r1==='OK'?'#0e7f6e':'var(--border2)';
-  ng1.style.background=r1==='NG'?'#8b3a52':'transparent';
-  ng1.style.color=r1==='NG'?'#fff':'var(--muted)';
-  ng1.style.borderColor=r1==='NG'?'#8b3a52':'var(--border2)';
-  // Rating buttons sess 2
-  const r2=e?e.rating2:null;
-  const ok2=document.getElementById('ok2-btn'); const ng2=document.getElementById('ng2-btn');
-  ok2.style.background=r2==='OK'?'#0e7f6e':'transparent';
-  ok2.style.color=r2==='OK'?'#fff':'var(--muted)';
-  ok2.style.borderColor=r2==='OK'?'#0e7f6e':'var(--border2)';
-  ng2.style.background=r2==='NG'?'#8b3a52':'transparent';
-  ng2.style.color=r2==='NG'?'#fff':'var(--muted)';
-  ng2.style.borderColor=r2==='NG'?'#8b3a52':'var(--border2)';
+  const p=getTodayPlan();
+  document.getElementById('ti-goal1').textContent=p.p1+' ph';
+  document.getElementById('ti-goal2').textContent=p.p2+' ph';
+  const act1=e&&e.mins1?e.mins1:0;
+  const act2=e&&e.mins2?e.mins2:0;
+  document.getElementById('ti-act1').textContent=act1?act1+' ph':'— ph';
+  document.getElementById('ti-act2').textContent=act2?act2+' ph':'— ph';
+
+  // OK/NG dựa trên kế hoạch đặc biệt hôm nay
+  const badge=document.getElementById('daily-result-badge');
+  const hasData=act1>0||act2>0;
+  if(!hasData){
+    badge.textContent='—'; badge.style.background='var(--surface3)'; badge.style.color='var(--muted)';
+  } else {
+    const totalAct=act1+act2; const totalGoal=p.p1+p.p2;
+    const ok=totalAct>=totalGoal;
+    badge.textContent=ok?'✓ OK':'✗ NG';
+    badge.style.background=ok?'#0e7f6e':'#8b3a52';
+    badge.style.color='#fff';
+  }
 }
 
 function renderAll(){
@@ -1113,6 +1166,7 @@ function renderAll(){
   renderPlanPage();
   renderMonthPVA();
   renderTimerInfo();
+  renderTodayPlanUI();
 }
 
 // Init
