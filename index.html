@@ -460,7 +460,7 @@ function saveLog(){
   const mins=+document.getElementById('log-mins').value;
   const q=+document.getElementById('log-quality').value;
   const types=[...document.querySelectorAll('#log-type-tags .on')].map(t=>t.textContent);
-  if(!mins||mins<1){toast('Nhập số phút hợp lệ');return;}
+  if(mins<0||mins===undefined||mins===null||isNaN(mins)){toast('Nhập số phút hợp lệ');return;}
   const k=getDK();let e=getEntry(k);
   if(!e){e={date:k,mins1:0,mins2:0,q1:3,q2:3,types1:[],types2:[]};ST.data.push(e);}
   if(typeof logSessNum==='string'&&logSessNum.startsWith('extra_')){
