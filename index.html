@@ -13,42 +13,42 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root {
-  --ink: #1a1a2e;
-  --ink2: #2d2d4e;
+  --ink: #0f1923;
+  --ink2: #1e2d3d;
   --surface: #ffffff;
-  --surface2: #f4f3ef;
-  --surface3: #ebe9e3;
-  --muted: #7a7a8c;
-  --faint: #b8b8c8;
-  --border: rgba(26,26,46,0.10);
-  --border2: rgba(26,26,46,0.20);
-  --gold: #b8860b;
-  --gold-light: #fdf6e0;
-  --gold-mid: #e8c84a;
-  --teal: #0e7f6e;
-  --teal-light: #e0f4f1;
-  --rose: #8b3a52;
-  --rose-light: #fce8ef;
-  --blue: #2563a8;
-  --blue-light: #e8f0fb;
+  --surface2: #eef1f4;
+  --surface3: #dde2e8;
+  --muted: #5a6878;
+  --faint: #9aa8b8;
+  --border: rgba(15,25,35,0.12);
+  --border2: rgba(15,25,35,0.25);
+  --gold: #9a6c00;
+  --gold-light: #fef3d0;
+  --gold-mid: #f0b429;
+  --teal: #076d5e;
+  --teal-light: #d0ede9;
+  --rose: #7a1c38;
+  --rose-light: #fad8e4;
+  --blue: #1a4d8f;
+  --blue-light: #dce8f8;
   --r: 10px;
   --rl: 16px;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --ink: #e8e6f0;
-    --ink2: #c8c6d8;
-    --surface: #14131f;
-    --surface2: #1e1d2e;
-    --surface3: #28273c;
-    --muted: #8888a8;
-    --faint: #505068;
-    --border: rgba(232,230,240,0.10);
-    --border2: rgba(232,230,240,0.20);
-    --gold-light: #2a2208;
-    --teal-light: #062420;
-    --rose-light: #280e18;
-    --blue-light: #0a1e38;
+    --ink: #e8f0f8;
+    --ink2: #c0cedd;
+    --surface: #0d1520;
+    --surface2: #162030;
+    --surface3: #1e2d40;
+    --muted: #7a90a8;
+    --faint: #3a5068;
+    --border: rgba(232,240,248,0.10);
+    --border2: rgba(232,240,248,0.22);
+    --gold-light: #2a1e00;
+    --teal-light: #03201a;
+    --rose-light: #220a14;
+    --blue-light: #081830;
   }
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -242,165 +242,133 @@ input[type=range]{width:100%;accent-color:var(--teal)}
 <!-- ══════════ HÔM NAY ══════════ -->
 <div class="page on" id="pg-today">
 
-  <!-- ROW 1: 2 thời + tổng kết -->
-  <div class="card" style="padding:10px 12px;margin-bottom:8px">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-      <div class="sess-block" id="sess1-card" onclick="openLogModal(1)" style="padding:9px 10px">
-        <div class="sess-lbl">🌅 Sáng</div>
-        <div class="sess-mins" id="sess1-mins" style="font-size:17px">— ph</div>
-        <div class="sess-type" id="sess1-type" style="font-size:10px">Chưa ghi</div>
-        <div class="sess-status" id="sess1-status" style="font-size:10px">Nhấn để ghi</div>
+  <!-- ROW 1: 2 thời + % + badge -->
+  <div class="card" style="padding:8px 10px;margin-bottom:6px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px">
+      <div class="sess-block" id="sess1-card" onclick="openLogModal(1)" style="padding:7px 9px">
+        <div class="sess-lbl" style="font-size:10px">🌅 Sáng</div>
+        <div class="sess-mins" id="sess1-mins" style="font-size:15px;font-weight:700">— ph</div>
+        <div class="sess-type" id="sess1-type" style="font-size:9px;color:var(--muted)">Chưa ghi</div>
+        <div class="sess-status" id="sess1-status" style="font-size:9px"></div>
       </div>
-      <div class="sess-block" id="sess2-card" onclick="openLogModal(2)" style="padding:9px 10px">
-        <div class="sess-lbl">🌙 Tối</div>
-        <div class="sess-mins" id="sess2-mins" style="font-size:17px">— ph</div>
-        <div class="sess-type" id="sess2-type" style="font-size:10px">Chưa ghi</div>
-        <div class="sess-status" id="sess2-status" style="font-size:10px">Nhấn để ghi</div>
+      <div class="sess-block" id="sess2-card" onclick="openLogModal(2)" style="padding:7px 9px">
+        <div class="sess-lbl" style="font-size:10px">🌙 Tối</div>
+        <div class="sess-mins" id="sess2-mins" style="font-size:15px;font-weight:700">— ph</div>
+        <div class="sess-type" id="sess2-type" style="font-size:9px;color:var(--muted)">Chưa ghi</div>
+        <div class="sess-status" id="sess2-status" style="font-size:9px"></div>
       </div>
     </div>
-    <!-- Các buổi thiền thêm -->
     <div id="extra-sessions-row"></div>
-    <button onclick="addExtraSession()" style="width:100%;padding:7px;border-radius:var(--r);border:1px dashed var(--border2);background:transparent;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:8px">+ Thêm thời thiền</button>
-    <div style="display:flex;align-items:center;gap:8px">
-      <div style="flex:1">
-        <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Hoàn thành hôm nay</div>
-        <div style="height:7px;background:var(--surface3);border-radius:4px;overflow:hidden">
-          <div id="today-bar" style="height:100%;border-radius:4px;transition:width .5s;width:0%"></div>
-        </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <div style="flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden">
+        <div id="today-bar" style="height:100%;border-radius:3px;transition:width .5s;width:0%"></div>
       </div>
-      <span id="today-pct" style="font-size:15px;font-weight:700;min-width:42px;text-align:right">0%</span>
-      <span id="daily-result-badge" style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;background:var(--surface3);color:var(--muted)">—</span>
+      <span id="today-pct" style="font-size:13px;font-weight:700;min-width:36px;text-align:right;color:var(--muted)">0%</span>
+      <span id="daily-result-badge" style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--surface3);color:var(--muted)">—</span>
+      <button onclick="addExtraSession()" title="Thêm thời thiền" style="padding:2px 8px;border-radius:5px;border:1px dashed var(--border2);background:transparent;font-size:13px;color:var(--muted);cursor:pointer">+</button>
     </div>
   </div>
 
-  <!-- ROW 2: KH/TT + Đồng hồ (1 hàng ngang) -->
-  <div class="card" style="padding:10px 12px;margin-bottom:8px">
-    <div style="display:flex;gap:10px;align-items:flex-start">
-
-      <!-- Trái: KH hôm nay + chuông + đồng hồ -->
-      <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px">
-        <div style="position:relative;width:86px;height:86px">
-          <svg width="86" height="86" viewBox="0 0 86 86" style="transform:rotate(-90deg)">
-            <circle fill="none" stroke="var(--surface3)" stroke-width="6" cx="43" cy="43" r="37"/>
-            <circle id="timer-ring" fill="none" stroke="var(--teal)" stroke-width="6" stroke-linecap="round" cx="43" cy="43" r="37" stroke-dasharray="232.5" stroke-dashoffset="0"/>
+  <!-- ROW 2: Đồng hồ + KH/TT + chuông -->
+  <div class="card" style="padding:8px 10px;margin-bottom:6px">
+    <div style="display:flex;gap:8px;align-items:flex-start">
+      <!-- Đồng hồ trái -->
+      <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="position:relative;width:74px;height:74px">
+          <svg width="74" height="74" viewBox="0 0 74 74" style="transform:rotate(-90deg)">
+            <circle fill="none" stroke="var(--surface3)" stroke-width="5" cx="37" cy="37" r="32"/>
+            <circle id="timer-ring" fill="none" stroke="var(--teal)" stroke-width="5" stroke-linecap="round" cx="37" cy="37" r="32" stroke-dasharray="201.1" stroke-dashoffset="0"/>
           </svg>
           <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
-            <div id="timer-display" style="font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.5px">30:00</div>
-            <div id="timer-state-lbl" style="font-size:8px;color:var(--muted)">Sẵn sàng</div>
+            <div id="timer-display" style="font-size:13px;font-weight:700;color:var(--ink);letter-spacing:-.5px">30:00</div>
+            <div id="timer-state-lbl" style="font-size:7px;color:var(--muted)">Sẵn sàng</div>
           </div>
         </div>
-        <!-- Thông báo hệ thống -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
-          <span style="font-size:10px;color:var(--muted)">🔔 Thông báo khi hết giờ</span>
-          <button id="notif-btn" onclick="enableNotif()" style="padding:3px 10px;border-radius:6px;border:1px solid var(--border2);background:transparent;font-size:10px;font-weight:600;color:var(--teal);cursor:pointer">Bật thông báo</button>
+        <div style="display:flex;gap:3px;width:74px">
+          <button onclick="adjTimerMins(-5)" style="flex:1;border:none;background:var(--surface3);border-radius:5px;padding:4px 0;font-size:11px;font-weight:700;cursor:pointer;color:var(--ink)">−5</button>
+          <button onclick="adjTimerMins(5)" style="flex:1;border:none;background:var(--surface3);border-radius:5px;padding:4px 0;font-size:11px;font-weight:700;cursor:pointer;color:var(--ink)">+5</button>
         </div>
-        <div style="display:flex;gap:4px;width:100%;margin-top:8px;margin-bottom:4px">
-          <button onclick="adjTimerMins(-5)" style="border:none;background:var(--surface3);border-radius:6px;flex:1;padding:5px 0;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink)">−5</button>
-          <button onclick="adjTimerMins(5)" style="border:none;background:var(--surface3);border-radius:6px;flex:1;padding:5px 0;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink)">+5</button>
-        </div>
-        <div style="display:flex;gap:4px;width:100%">
-          <button class="tbtn start" id="timer-start-btn" onclick="timerStartStop()" style="flex:1;padding:7px 0;font-size:12px">▶</button>
-          <button class="tbtn" id="timer-reset-btn" onclick="timerReset()" style="padding:7px 10px;font-size:12px">↺</button>
+        <div style="display:flex;gap:3px;width:74px">
+          <button class="tbtn start" id="timer-start-btn" onclick="timerStartStop()" style="flex:1;padding:5px 0;font-size:11px;font-weight:700">▶</button>
+          <button class="tbtn" id="timer-reset-btn" onclick="timerReset()" style="padding:5px 8px;font-size:11px">↺</button>
         </div>
       </div>
-
       <!-- Phải: KH/TT + KH đặc biệt + chuông -->
-      <div style="flex:1;min-width:0">
-        <!-- KH vs TT -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">
-          <div style="background:var(--surface2);border-radius:6px;padding:6px 8px">
-            <div style="font-size:9px;color:var(--muted);font-weight:600;margin-bottom:3px">🎯 KẾ HOẠCH</div>
-            <div style="font-size:11px;color:var(--muted)">🌅 <span id="ti-goal1" style="font-weight:700;color:var(--ink)">—</span></div>
-            <div style="font-size:11px;color:var(--muted)">🌙 <span id="ti-goal2" style="font-weight:700;color:var(--ink)">—</span></div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          <div style="background:var(--surface2);border-radius:6px;padding:5px 7px">
+            <div style="font-size:8px;color:var(--muted);font-weight:700;margin-bottom:2px">🎯 KẾ HOẠCH</div>
+            <div style="font-size:10px;color:var(--muted)">🌅 <span id="ti-goal1" style="font-weight:700;color:var(--ink)">—</span></div>
+            <div style="font-size:10px;color:var(--muted)">🌙 <span id="ti-goal2" style="font-weight:700;color:var(--ink)">—</span></div>
           </div>
-          <div style="background:var(--surface2);border-radius:6px;padding:6px 8px">
-            <div style="font-size:9px;color:var(--muted);font-weight:600;margin-bottom:3px">✅ THỰC TẾ</div>
-            <div style="font-size:11px;color:var(--muted)">🌅 <span id="ti-act1" style="font-weight:700;color:var(--teal)">—</span></div>
-            <div style="font-size:11px;color:var(--muted)">🌙 <span id="ti-act2" style="font-weight:700;color:var(--teal)">—</span></div>
-          </div>
-        </div>
-
-        <!-- KH đặc biệt — thu gọn -->
-        <div style="background:var(--surface2);border-radius:6px;padding:6px 8px;margin-bottom:6px">
-          <div style="font-size:9px;font-weight:600;margin-bottom:4px" id="today-special-hint" style="color:var(--muted)">⏱ KH đặc biệt hôm nay</div>
-          <div style="display:flex;gap:6px;align-items:center">
-            <span style="font-size:9px;color:var(--muted)">🌅</span>
-            <button onclick="adjTodayPlan(1,-5)" style="border:none;background:var(--surface3);border-radius:4px;width:18px;height:18px;cursor:pointer;font-size:12px;color:var(--ink);line-height:1;display:flex;align-items:center;justify-content:center">−</button>
-            <span id="today-plan1-val" style="font-size:12px;font-weight:700;min-width:28px;text-align:center;color:var(--ink)">—</span>
-            <button onclick="adjTodayPlan(1,5)" style="border:none;background:var(--surface3);border-radius:4px;width:18px;height:18px;cursor:pointer;font-size:12px;color:var(--ink);line-height:1;display:flex;align-items:center;justify-content:center">+</button>
-            <span style="font-size:9px;color:var(--muted);margin-left:4px">🌙</span>
-            <button onclick="adjTodayPlan(2,-5)" style="border:none;background:var(--surface3);border-radius:4px;width:18px;height:18px;cursor:pointer;font-size:12px;color:var(--ink);line-height:1;display:flex;align-items:center;justify-content:center">−</button>
-            <span id="today-plan2-val" style="font-size:12px;font-weight:700;min-width:28px;text-align:center;color:var(--ink)">—</span>
-            <button onclick="adjTodayPlan(2,5)" style="border:none;background:var(--surface3);border-radius:4px;width:18px;height:18px;cursor:pointer;font-size:12px;color:var(--ink);line-height:1;display:flex;align-items:center;justify-content:center">+</button>
-            <button onclick="resetTodayPlan()" style="margin-left:auto;border:none;background:transparent;font-size:10px;color:var(--muted);cursor:pointer">↺</button>
+          <div style="background:var(--surface2);border-radius:6px;padding:5px 7px">
+            <div style="font-size:8px;color:var(--muted);font-weight:700;margin-bottom:2px">✅ THỰC TẾ</div>
+            <div style="font-size:10px;color:var(--muted)">🌅 <span id="ti-act1" style="font-weight:700;color:var(--teal)">—</span></div>
+            <div style="font-size:10px;color:var(--muted)">🌙 <span id="ti-act2" style="font-weight:700;color:var(--teal)">—</span></div>
           </div>
         </div>
-
-        <!-- Chuông — 1 hàng -->
-        <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-          <span style="font-size:10px;color:var(--muted)">🔔</span>
-          <div style="display:flex;gap:3px;flex-wrap:wrap;flex:1" id="bell-selector">
-            <button class="bell-opt on" onclick="selectBell(this,'bowl')" style="padding:3px 6px;font-size:10px">🎵</button>
-            <button class="bell-opt" onclick="selectBell(this,'singing')" style="padding:3px 6px;font-size:10px">🔔</button>
-            <button class="bell-opt" onclick="selectBell(this,'ding')" style="padding:3px 6px;font-size:10px">🔮</button>
-            <button class="bell-opt" onclick="selectBell(this,'gong')" style="padding:3px 6px;font-size:10px">🥁</button>
-            <button class="bell-opt" onclick="selectBell(this,'soft')" style="padding:3px 6px;font-size:10px">🍃</button>
-            <button class="bell-opt" onclick="selectBell(this,'triple')" style="padding:3px 6px;font-size:10px">✨</button>
+        <div style="background:var(--surface2);border-radius:6px;padding:4px 7px">
+          <div style="font-size:8px;font-weight:700;color:var(--muted);margin-bottom:3px" id="today-special-hint">⏱ KH đặc biệt hôm nay</div>
+          <div style="display:flex;gap:3px;align-items:center">
+            <span style="font-size:9px">🌅</span>
+            <button onclick="adjTodayPlan(1,-5)" style="border:none;background:var(--surface3);border-radius:3px;width:16px;height:16px;cursor:pointer;font-size:11px;color:var(--ink);display:flex;align-items:center;justify-content:center">−</button>
+            <span id="today-plan1-val" style="font-size:11px;font-weight:700;min-width:24px;text-align:center;color:var(--ink)">—</span>
+            <button onclick="adjTodayPlan(1,5)" style="border:none;background:var(--surface3);border-radius:3px;width:16px;height:16px;cursor:pointer;font-size:11px;color:var(--ink);display:flex;align-items:center;justify-content:center">+</button>
+            <span style="font-size:9px;margin-left:3px">🌙</span>
+            <button onclick="adjTodayPlan(2,-5)" style="border:none;background:var(--surface3);border-radius:3px;width:16px;height:16px;cursor:pointer;font-size:11px;color:var(--ink);display:flex;align-items:center;justify-content:center">−</button>
+            <span id="today-plan2-val" style="font-size:11px;font-weight:700;min-width:24px;text-align:center;color:var(--ink)">—</span>
+            <button onclick="adjTodayPlan(2,5)" style="border:none;background:var(--surface3);border-radius:3px;width:16px;height:16px;cursor:pointer;font-size:11px;color:var(--ink);display:flex;align-items:center;justify-content:center">+</button>
+            <button onclick="resetTodayPlan()" style="margin-left:auto;border:none;background:transparent;font-size:9px;color:var(--muted);cursor:pointer">↺</button>
           </div>
-          <button onclick="previewBell()" style="padding:3px 8px;border-radius:4px;border:1px solid var(--border2);background:transparent;font-size:10px;color:var(--teal);cursor:pointer">▶</button>
-          <label class="toggle" title="Chuông kết thúc"><input type="checkbox" id="bell-end" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div style="display:flex;align-items:center;gap:3px">
+          <div style="display:flex;gap:2px;flex:1" id="bell-selector">
+            <button class="bell-opt on" onclick="selectBell(this,'bowl')" style="padding:2px 5px;font-size:11px">🎵</button>
+            <button class="bell-opt" onclick="selectBell(this,'singing')" style="padding:2px 5px;font-size:11px">🔔</button>
+            <button class="bell-opt" onclick="selectBell(this,'ding')" style="padding:2px 5px;font-size:11px">🔮</button>
+            <button class="bell-opt" onclick="selectBell(this,'gong')" style="padding:2px 5px;font-size:11px">🥁</button>
+            <button class="bell-opt" onclick="selectBell(this,'soft')" style="padding:2px 5px;font-size:11px">🍃</button>
+            <button class="bell-opt" onclick="selectBell(this,'triple')" style="padding:2px 5px;font-size:11px">✨</button>
+          </div>
+          <button onclick="previewBell()" style="padding:2px 6px;border-radius:4px;border:1px solid var(--border2);background:transparent;font-size:10px;color:var(--teal);cursor:pointer">▶</button>
+          <label class="toggle" style="transform:scale(0.8)"><input type="checkbox" id="bell-end" checked><span class="toggle-slider"></span></label>
+          <button id="notif-btn" onclick="enableNotif()" title="Bật thông báo" style="padding:2px 6px;border-radius:4px;border:1px solid var(--border2);background:transparent;font-size:10px;color:var(--teal);cursor:pointer">🔔</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ROW 3: Biểu đồ tháng tách sáng/tối -->
-  <div class="card" style="padding:10px 12px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <span style="font-size:10px;font-weight:600;color:var(--muted)">THỰC TẾ vs KẾ HOẠCH — THÁNG NÀY</span>
-      <span id="month-pva-pct" style="font-size:11px;font-weight:700;color:var(--teal)">0%</span>
-    </div>
-    <!-- Thanh tiến độ nhỏ -->
-    <div style="height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-bottom:8px">
-      <div id="mpva-progress" style="height:100%;border-radius:3px;background:var(--teal);transition:width .5s;width:0%"></div>
-    </div>
-    <!-- Số liệu 4 ô nhỏ -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:8px">
-      <div style="background:var(--surface2);border-radius:6px;padding:5px 6px;text-align:center">
-        <div style="font-size:14px;font-weight:700;color:var(--ink)" id="mpva-actual">0</div>
-        <div style="font-size:9px;color:var(--muted)">Đã thiền</div>
+  <!-- ROW 3: Biểu đồ tháng compact -->
+  <div class="card" style="padding:8px 10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:9px;font-weight:700;color:var(--muted)">THÁNG NÀY</span>
+        <span style="font-size:9px;color:var(--muted)">Đã: <b id="mpva-actual" style="color:var(--ink)">0</b>ph</span>
+        <span style="font-size:9px;color:var(--muted)">KH: <b id="mpva-plan" style="color:var(--ink)">0</b>ph</span>
+        <span style="font-size:9px;color:var(--teal)">✓<b id="mpva-full">0</b></span>
+        <span style="font-size:9px;color:var(--rose)">✗<b id="mpva-miss">0</b></span>
       </div>
-      <div style="background:var(--surface2);border-radius:6px;padding:5px 6px;text-align:center">
-        <div style="font-size:14px;font-weight:700;color:var(--ink)" id="mpva-plan">0</div>
-        <div style="font-size:9px;color:var(--muted)">KH tháng</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:6px;padding:5px 6px;text-align:center">
-        <div style="font-size:14px;font-weight:700;color:var(--teal)" id="mpva-full">0</div>
-        <div style="font-size:9px;color:var(--muted)">Đủ 2 thời</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:6px;padding:5px 6px;text-align:center">
-        <div style="font-size:14px;font-weight:700;color:var(--rose)" id="mpva-miss">0</div>
-        <div style="font-size:9px;color:var(--muted)">Thiếu/bỏ</div>
-      </div>
+      <span id="month-pva-pct" style="font-size:12px;font-weight:700;color:var(--teal)">0%</span>
     </div>
-    <!-- Biểu đồ tháng: canvas -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#0e7f6e"></div>Đủ KH</div>
-      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#4aab8a"></div>≥70%</div>
-      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#e8c84a"></div>&lt;70%</div>
-      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#c0392b"></div>Không thiền</div>
-      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:16px;height:2px;background:#b8860b"></div>KH sáng</div>
-      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:16px;height:0;border-top:1.5px dashed #8b3a52"></div>KH tối</div>
+    <div style="height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-bottom:5px">
+      <div id="mpva-progress" style="height:100%;border-radius:2px;background:var(--teal);transition:width .5s;width:0%"></div>
     </div>
-    <div style="position:relative;width:100%;height:130px">
-      <canvas id="month-chart-canvas" role="img" aria-label="Biểu đồ thiền tháng tách sáng tối"></canvas>
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:2px;font-size:8px;color:var(--muted)"><div style="width:7px;height:7px;border-radius:1px;background:#076d5e"></div>Đủ</div>
+      <div style="display:flex;align-items:center;gap:2px;font-size:8px;color:var(--muted)"><div style="width:7px;height:7px;border-radius:1px;background:#3aab8a"></div>≥70%</div>
+      <div style="display:flex;align-items:center;gap:2px;font-size:8px;color:var(--muted)"><div style="width:7px;height:7px;border-radius:1px;background:#f0b429"></div>&lt;70%</div>
+      <div style="display:flex;align-items:center;gap:2px;font-size:8px;color:var(--muted)"><div style="width:7px;height:7px;border-radius:1px;background:#c0392b"></div>Bỏ</div>
+      <div style="display:flex;align-items:center;gap:2px;font-size:8px;color:var(--muted)"><div style="width:10px;height:1.5px;background:#9a6c00"></div>KH S</div>
+      <div style="display:flex;align-items:center;gap:2px;font-size:8px;color:var(--muted)"><div style="width:10px;height:0;border-top:1.5px dashed #7a1c38"></div>KH T</div>
+    </div>
+    <div style="position:relative;width:100%;height:85px">
+      <canvas id="month-chart-canvas" role="img" aria-label="Biểu đồ thiền tháng"></canvas>
     </div>
     <div id="month-pva-bars" style="display:none"></div>
     <div id="month-pva-labels" style="display:none"></div>
   </div>
 
 </div>
-
 <!-- ══════════ KẾ HOẠCH ══════════ -->
 <div class="page" id="pg-plan">
   <div class="card">
@@ -802,7 +770,7 @@ function adjTimer(delta){
 function timerFmt(s){ const m=Math.floor(s/60); return String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
 
 function updateRing(remaining,total){
-  const r=37; const circ=2*Math.PI*r;
+  const r=32; const circ=2*Math.PI*r;
   const frac=total>0?remaining/total:1;
   const offset=circ*(1-frac);
   const ring=document.getElementById('timer-ring');
