@@ -242,73 +242,57 @@ input[type=range]{width:100%;accent-color:var(--teal)}
 <!-- ══════════ HÔM NAY ══════════ -->
 <div class="page on" id="pg-today">
 
-  <!-- ROW 1: 2 thời + % + badge -->
+  <!-- ROW 1+2: Compact single card -->
   <div class="card" style="padding:8px 10px;margin-bottom:6px">
+
+    <!-- 2 thời -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px">
-      <div class="sess-block" id="sess1-card" onclick="openLogModal(1)" style="padding:7px 9px">
-        <div class="sess-lbl" style="font-size:10px">🌅 Sáng</div>
-        <div class="sess-mins" id="sess1-mins" style="font-size:15px;font-weight:700">— ph</div>
-        <div class="sess-type" id="sess1-type" style="font-size:9px;color:var(--muted)">Chưa ghi</div>
-        <div class="sess-status" id="sess1-status" style="font-size:9px"></div>
+      <div class="sess-block" id="sess1-card" onclick="openLogModal(1)" style="padding:6px 8px">
+        <div style="font-size:9px;color:var(--muted)">🌅 Sáng</div>
+        <div class="sess-mins" id="sess1-mins" style="font-size:16px;font-weight:700;line-height:1.2">— ph</div>
+        <div id="sess1-type" style="font-size:9px;color:var(--muted)">Chưa ghi</div>
+        <div id="sess1-status" style="font-size:9px;color:var(--teal)"></div>
       </div>
-      <div class="sess-block" id="sess2-card" onclick="openLogModal(2)" style="padding:7px 9px">
-        <div class="sess-lbl" style="font-size:10px">🌙 Tối</div>
-        <div class="sess-mins" id="sess2-mins" style="font-size:15px;font-weight:700">— ph</div>
-        <div class="sess-type" id="sess2-type" style="font-size:9px;color:var(--muted)">Chưa ghi</div>
-        <div class="sess-status" id="sess2-status" style="font-size:9px"></div>
+      <div class="sess-block" id="sess2-card" onclick="openLogModal(2)" style="padding:6px 8px">
+        <div style="font-size:9px;color:var(--muted)">🌙 Tối</div>
+        <div class="sess-mins" id="sess2-mins" style="font-size:16px;font-weight:700;line-height:1.2">— ph</div>
+        <div id="sess2-type" style="font-size:9px;color:var(--muted)">Chưa ghi</div>
+        <div id="sess2-status" style="font-size:9px;color:var(--teal)"></div>
       </div>
     </div>
     <div id="extra-sessions-row"></div>
-    <div style="display:flex;align-items:center;gap:6px">
-      <div style="flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden">
+
+    <!-- % + badge + nút thêm -->
+    <div style="display:flex;align-items:center;gap:5px;margin-bottom:8px">
+      <div style="flex:1;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden">
         <div id="today-bar" style="height:100%;border-radius:3px;transition:width .5s;width:0%"></div>
       </div>
-      <span id="today-pct" style="font-size:13px;font-weight:700;min-width:36px;text-align:right;color:var(--muted)">0%</span>
-      <span id="daily-result-badge" style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--surface3);color:var(--muted)">—</span>
-      <button onclick="addExtraSession()" title="Thêm thời thiền" style="padding:2px 8px;border-radius:5px;border:1px dashed var(--border2);background:transparent;font-size:13px;color:var(--muted);cursor:pointer">+</button>
+      <span id="today-pct" style="font-size:12px;font-weight:700;min-width:32px;text-align:right;color:var(--muted)">0%</span>
+      <span id="daily-result-badge" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--surface3);color:var(--muted)">—</span>
+      <button onclick="addExtraSession()" title="Thêm thời thiền" style="padding:2px 7px;border-radius:4px;border:1px dashed var(--border2);background:transparent;font-size:13px;color:var(--muted);cursor:pointer">+</button>
     </div>
-  </div>
 
-  <!-- ROW 2: Đồng hồ + KH/TT + chuông -->
-  <div class="card" style="padding:8px 10px;margin-bottom:6px">
-    <div style="display:flex;gap:8px;align-items:flex-start">
-      <!-- Đồng hồ trái -->
-      <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px">
-        <div style="position:relative;width:74px;height:74px">
-          <svg width="74" height="74" viewBox="0 0 74 74" style="transform:rotate(-90deg)">
-            <circle fill="none" stroke="var(--surface3)" stroke-width="5" cx="37" cy="37" r="32"/>
-            <circle id="timer-ring" fill="none" stroke="var(--teal)" stroke-width="5" stroke-linecap="round" cx="37" cy="37" r="32" stroke-dasharray="201.1" stroke-dashoffset="0"/>
-          </svg>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
-            <div id="timer-display" style="font-size:13px;font-weight:700;color:var(--ink);letter-spacing:-.5px">30:00</div>
-            <div id="timer-state-lbl" style="font-size:7px;color:var(--muted)">Sẵn sàng</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:3px;width:74px">
-          <button onclick="adjTimerMins(-5)" style="flex:1;border:none;background:var(--surface3);border-radius:5px;padding:4px 0;font-size:11px;font-weight:700;cursor:pointer;color:var(--ink)">−5</button>
-          <button onclick="adjTimerMins(5)" style="flex:1;border:none;background:var(--surface3);border-radius:5px;padding:4px 0;font-size:11px;font-weight:700;cursor:pointer;color:var(--ink)">+5</button>
-        </div>
-        <div style="display:flex;gap:3px;width:74px">
-          <button class="tbtn start" id="timer-start-btn" onclick="timerStartStop()" style="flex:1;padding:5px 0;font-size:11px;font-weight:700">▶</button>
-          <button class="tbtn" id="timer-reset-btn" onclick="timerReset()" style="padding:5px 8px;font-size:11px">↺</button>
-        </div>
-      </div>
-      <!-- Phải: KH/TT + KH đặc biệt + chuông -->
+    <!-- Layout: KH/TT trái | Đồng hồ phải -->
+    <div style="display:flex;gap:6px;align-items:flex-start">
+
+      <!-- TRÁI: KH/TT + KH đặc biệt -->
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-          <div style="background:var(--surface2);border-radius:6px;padding:5px 7px">
-            <div style="font-size:8px;color:var(--muted);font-weight:700;margin-bottom:2px">🎯 KẾ HOẠCH</div>
-            <div style="font-size:10px;color:var(--muted)">🌅 <span id="ti-goal1" style="font-weight:700;color:var(--ink)">—</span></div>
-            <div style="font-size:10px;color:var(--muted)">🌙 <span id="ti-goal2" style="font-weight:700;color:var(--ink)">—</span></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px">
+          <div style="background:var(--surface2);border-radius:5px;padding:5px 7px">
+            <div style="font-size:7px;color:var(--muted);font-weight:700;margin-bottom:3px">🎯 KẾ HOẠCH</div>
+            <div style="font-size:12px;color:var(--muted)">🌅 <span id="ti-goal1" style="font-weight:700;color:var(--ink)">—</span></div>
+            <div style="font-size:12px;color:var(--muted)">🌙 <span id="ti-goal2" style="font-weight:700;color:var(--ink)">—</span></div>
           </div>
-          <div style="background:var(--surface2);border-radius:6px;padding:5px 7px">
-            <div style="font-size:8px;color:var(--muted);font-weight:700;margin-bottom:2px">✅ THỰC TẾ</div>
-            <div style="font-size:10px;color:var(--muted)">🌅 <span id="ti-act1" style="font-weight:700;color:var(--teal)">—</span></div>
-            <div style="font-size:10px;color:var(--muted)">🌙 <span id="ti-act2" style="font-weight:700;color:var(--teal)">—</span></div>
+          <div style="background:var(--surface2);border-radius:5px;padding:5px 7px">
+            <div style="font-size:7px;color:var(--muted);font-weight:700;margin-bottom:3px">✅ THỰC TẾ</div>
+            <div style="font-size:12px;color:var(--muted)">🌅 <span id="ti-act1" style="font-weight:700;color:var(--teal)">—</span></div>
+            <div style="font-size:12px;color:var(--muted)">🌙 <span id="ti-act2" style="font-weight:700;color:var(--teal)">—</span></div>
           </div>
         </div>
-        <div style="background:var(--surface2);border-radius:6px;padding:4px 7px">
-          <div style="font-size:8px;font-weight:700;color:var(--muted);margin-bottom:3px" id="today-special-hint">⏱ KH đặc biệt hôm nay</div>
+
+        <div style="background:var(--surface2);border-radius:5px;padding:4px 7px">
+          <div style="font-size:7px;font-weight:700;color:var(--muted);margin-bottom:3px" id="today-special-hint">⏱ KH đặc biệt</div>
           <div style="display:flex;gap:3px;align-items:center">
             <span style="font-size:9px">🌅</span>
             <button onclick="adjTodayPlan(1,-5)" style="border:none;background:var(--surface3);border-radius:3px;width:16px;height:16px;cursor:pointer;font-size:11px;color:var(--ink);display:flex;align-items:center;justify-content:center">−</button>
@@ -321,22 +305,50 @@ input[type=range]{width:100%;accent-color:var(--teal)}
             <button onclick="resetTodayPlan()" style="margin-left:auto;border:none;background:transparent;font-size:9px;color:var(--muted);cursor:pointer">↺</button>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:3px">
-          <div style="display:flex;gap:2px;flex:1" id="bell-selector">
-            <button class="bell-opt on" onclick="selectBell(this,'bowl')" style="padding:2px 5px;font-size:11px">🎵</button>
-            <button class="bell-opt" onclick="selectBell(this,'singing')" style="padding:2px 5px;font-size:11px">🔔</button>
-            <button class="bell-opt" onclick="selectBell(this,'ding')" style="padding:2px 5px;font-size:11px">🔮</button>
-            <button class="bell-opt" onclick="selectBell(this,'gong')" style="padding:2px 5px;font-size:11px">🥁</button>
-            <button class="bell-opt" onclick="selectBell(this,'soft')" style="padding:2px 5px;font-size:11px">🍃</button>
-            <button class="bell-opt" onclick="selectBell(this,'triple')" style="padding:2px 5px;font-size:11px">✨</button>
+
+        <!-- Chuông: 2 hàng 3 cột -->
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px" id="bell-selector">
+            <button class="bell-opt on" onclick="selectBell(this,'bowl')" style="padding:3px 0;font-size:12px;text-align:center">🎵</button>
+            <button class="bell-opt" onclick="selectBell(this,'singing')" style="padding:3px 0;font-size:12px;text-align:center">🔔</button>
+            <button class="bell-opt" onclick="selectBell(this,'ding')" style="padding:3px 0;font-size:12px;text-align:center">🔮</button>
+            <button class="bell-opt" onclick="selectBell(this,'gong')" style="padding:3px 0;font-size:12px;text-align:center">🥁</button>
+            <button class="bell-opt" onclick="selectBell(this,'soft')" style="padding:3px 0;font-size:12px;text-align:center">🍃</button>
+            <button class="bell-opt" onclick="selectBell(this,'triple')" style="padding:3px 0;font-size:12px;text-align:center">✨</button>
           </div>
-          <button onclick="previewBell()" style="padding:2px 6px;border-radius:4px;border:1px solid var(--border2);background:transparent;font-size:10px;color:var(--teal);cursor:pointer">▶</button>
-          <label class="toggle" style="transform:scale(0.8)"><input type="checkbox" id="bell-end" checked><span class="toggle-slider"></span></label>
-          <button id="notif-btn" onclick="enableNotif()" title="Bật thông báo" style="padding:2px 6px;border-radius:4px;border:1px solid var(--border2);background:transparent;font-size:10px;color:var(--teal);cursor:pointer">🔔</button>
+          <div style="display:flex;align-items:center;gap:3px;justify-content:flex-end">
+            <button onclick="previewBell()" style="padding:2px 8px;border-radius:3px;border:1px solid var(--border2);background:transparent;font-size:10px;color:var(--teal);cursor:pointer">▶ Thử</button>
+            <label class="toggle" style="transform:scale(0.8)"><input type="checkbox" id="bell-end" checked><span class="toggle-slider"></span></label>
+            <button id="notif-btn" onclick="enableNotif()" title="Bật thông báo" style="padding:2px 6px;border-radius:3px;border:1px solid var(--border2);background:transparent;font-size:9px;color:var(--teal);cursor:pointer">🔔</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHẢI: Đồng hồ -->
+      <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:3px">
+        <div style="position:relative;width:96px;height:96px">
+          <svg width="96" height="96" viewBox="0 0 96 96" style="transform:rotate(-90deg)">
+            <circle fill="none" stroke="var(--surface3)" stroke-width="6" cx="48" cy="48" r="42"/>
+            <circle id="timer-ring" fill="none" stroke="var(--teal)" stroke-width="6" stroke-linecap="round" cx="48" cy="48" r="42" stroke-dasharray="263.9" stroke-dashoffset="0"/>
+          </svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+            <div id="timer-display" style="font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.5px">30:00</div>
+            <div id="timer-state-lbl" style="font-size:8px;color:var(--muted)">Sẵn sàng</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:2px;width:96px">
+          <button onclick="adjTimerMins(-5)" style="flex:1;border:none;background:var(--surface3);border-radius:4px;padding:4px 0;font-size:11px;font-weight:700;cursor:pointer;color:var(--ink)">−5</button>
+          <button onclick="adjTimerMins(5)" style="flex:1;border:none;background:var(--surface3);border-radius:4px;padding:4px 0;font-size:11px;font-weight:700;cursor:pointer;color:var(--ink)">+5</button>
+        </div>
+        <div style="display:flex;gap:2px;width:96px">
+          <button class="tbtn start" id="timer-start-btn" onclick="timerStartStop()" style="flex:1;padding:5px 0;font-size:11px;font-weight:700">▶</button>
+          <button class="tbtn" id="timer-reset-btn" onclick="timerReset()" style="padding:5px 8px;font-size:11px">↺</button>
         </div>
       </div>
     </div>
   </div>
+
+    </div>
 
   <!-- ROW 3: Biểu đồ tháng compact -->
   <div class="card" style="padding:8px 10px">
@@ -361,7 +373,7 @@ input[type=range]{width:100%;accent-color:var(--teal)}
       <div style="display:flex;align-items:center;gap:2px;font-size:8px;color:var(--muted)"><div style="width:10px;height:1.5px;background:#9a6c00"></div>KH S</div>
       <div style="display:flex;align-items:center;gap:2px;font-size:8px;color:var(--muted)"><div style="width:10px;height:0;border-top:1.5px dashed #7a1c38"></div>KH T</div>
     </div>
-    <div style="position:relative;width:100%;height:85px">
+    <div style="position:relative;width:100%;height:120px">
       <canvas id="month-chart-canvas" role="img" aria-label="Biểu đồ thiền tháng"></canvas>
     </div>
     <div id="month-pva-bars" style="display:none"></div>
@@ -769,7 +781,7 @@ function adjTimer(delta){
 function timerFmt(s){ const m=Math.floor(s/60); return String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
 
 function updateRing(remaining,total){
-  const r=32; const circ=2*Math.PI*r;
+  const r=42; const circ=2*Math.PI*r;
   const frac=total>0?remaining/total:1;
   const offset=circ*(1-frac);
   const ring=document.getElementById('timer-ring');
