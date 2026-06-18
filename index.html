@@ -159,19 +159,10 @@ input[type=range]{width:100%;accent-color:var(--teal)}
             <button onclick="resetTodayPlan()" style="margin-left:auto;border:none;background:transparent;font-size:9px;color:var(--muted);cursor:pointer">↺</button>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px" id="bell-selector">
-          <button class="bell-opt on" onclick="selectBell(this,'bowl')" style="padding:3px 0;font-size:13px">🎵</button>
-          <button class="bell-opt" onclick="selectBell(this,'singing')" style="padding:3px 0;font-size:13px">🔔</button>
-          <button class="bell-opt" onclick="selectBell(this,'ding')" style="padding:3px 0;font-size:13px">🔮</button>
-          <button class="bell-opt" onclick="selectBell(this,'gong')" style="padding:3px 0;font-size:13px">🥁</button>
-          <button class="bell-opt" onclick="selectBell(this,'soft')" style="padding:3px 0;font-size:13px">🍃</button>
-          <button class="bell-opt" onclick="selectBell(this,'triple')" style="padding:3px 0;font-size:13px">✨</button>
-        </div>
-        <!-- Tải file âm thanh -->
-        <div style="background:var(--surface2);border-radius:6px;padding:4px 7px;display:flex;align-items:center;gap:6px">
+        <div style="background:var(--surface2);border-radius:6px;padding:4px 7px;display:flex;align-items:center;gap:4px">
           <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex:1">
-            <span style="font-size:11px;color:var(--muted)">📁</span>
-            <span id="custom-audio-name" style="font-size:10px;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Tải chuông riêng...</span>
+            <span style="font-size:13px">🔔</span>
+            <span id="custom-audio-name" style="font-size:10px;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Tải chuông từ điện thoại...</span>
             <input type="file" id="custom-audio-input" accept="audio/*" style="display:none" onchange="loadCustomAudio(this)">
           </label>
           <button id="custom-audio-clear" onclick="clearCustomAudio()" style="display:none;border:none;background:transparent;font-size:11px;color:var(--rose);cursor:pointer">✕</button>
@@ -182,23 +173,24 @@ input[type=range]{width:100%;accent-color:var(--teal)}
           <button id="notif-btn" onclick="enableNotif()" style="padding:2px 7px;border-radius:4px;border:1px solid var(--border2);background:transparent;font-size:9px;color:var(--teal);cursor:pointer">🔔 Thông báo</button>
         </div>
       </div>
+
       <!-- PHẢI: Đồng hồ -->
       <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px">
-        <div style="position:relative;width:96px;height:96px">
-          <svg width="96" height="96" viewBox="0 0 96 96" style="transform:rotate(-90deg)">
-            <circle fill="none" stroke="var(--surface3)" stroke-width="7" cx="48" cy="48" r="42"/>
-            <circle id="timer-ring" fill="none" stroke="var(--teal)" stroke-width="7" stroke-linecap="round" cx="48" cy="48" r="42" stroke-dasharray="263.9" stroke-dashoffset="0"/>
+        <div style="position:relative;width:110px;height:110px">
+          <svg width="110" height="110" viewBox="0 0 110 110" style="transform:rotate(-90deg)">
+            <circle fill="none" stroke="var(--surface3)" stroke-width="7" cx="55" cy="55" r="48"/>
+            <circle id="timer-ring" fill="none" stroke="var(--teal)" stroke-width="7" stroke-linecap="round" cx="55" cy="55" r="48" stroke-dasharray="301.6" stroke-dashoffset="0"/>
           </svg>
           <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
-            <div id="timer-display" style="font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.5px">30:00</div>
+            <div id="timer-display" style="font-size:20px;font-weight:700;color:var(--ink);letter-spacing:-.5px">30:00</div>
             <div id="timer-state-lbl" style="font-size:8px;color:var(--muted)">Sẵn sàng</div>
           </div>
         </div>
-        <div style="display:flex;gap:3px;width:96px">
+        <div style="display:flex;gap:3px;width:110px">
           <button onclick="adjTimerMins(-5)" style="flex:1;border:none;background:var(--surface3);border-radius:5px;padding:4px 0;font-size:11px;font-weight:700;cursor:pointer;color:var(--ink)">−5</button>
           <button onclick="adjTimerMins(5)" style="flex:1;border:none;background:var(--surface3);border-radius:5px;padding:4px 0;font-size:11px;font-weight:700;cursor:pointer;color:var(--ink)">+5</button>
         </div>
-        <div style="display:flex;gap:3px;width:96px">
+        <div style="display:flex;gap:3px;width:110px">
           <button class="tbtn start" id="timer-start-btn" onclick="timerStartStop()" style="flex:1;padding:6px 0;font-size:11px;font-weight:700">▶</button>
           <button class="tbtn" id="timer-reset-btn" onclick="timerReset()" style="padding:6px 10px;font-size:11px">↺</button>
         </div>
@@ -570,7 +562,7 @@ function adjTimerMins(delta){
 function getActiveSession(){const k=getDK();const e=getEntry(k);return(!e||!e.mins1)?1:2;}
 function timerFmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
 function updateRing(remaining,total){
-  const r=42;const circ=2*Math.PI*r;const frac=total>0?remaining/total:1;
+  const r=48;const circ=2*Math.PI*r;const frac=total>0?remaining/total:1;
   const ring=document.getElementById('timer-ring');if(!ring)return;
   ring.style.strokeDasharray=circ.toFixed(1);
   ring.style.strokeDashoffset=(circ*(1-frac)).toFixed(1);
