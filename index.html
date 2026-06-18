@@ -373,13 +373,13 @@ input[type=range]{width:100%;accent-color:var(--teal)}
 <div class="page" id="pg-plan">
   <div class="card">
     <div class="card-hd">Đặt mục tiêu hằng ngày</div>
-    <div class="srow">
-      <div class="srow-top"><label>Buổi sáng (phút)</label><span class="sval" id="goal1-val">30 ph</span></div>
-      <input type="range" id="goal1-slider" min="5" max="1200" step="5" value="30" oninput="updateGoal(1,this.value)">
+    <div class="frow" style="margin-bottom:10px">
+      <label style="font-size:14px;color:var(--ink)">🌅 Buổi sáng (phút)</label>
+      <input class="finput" type="number" id="goal1-slider" min="5" max="1200" value="30" oninput="updateGoal(1,this.value)" style="width:90px;font-size:16px;font-weight:700;color:var(--teal);border-color:var(--teal)">
     </div>
-    <div class="srow">
-      <div class="srow-top"><label>Buổi tối (phút)</label><span class="sval" id="goal2-val">30 ph</span></div>
-      <input type="range" id="goal2-slider" min="5" max="1200" step="5" value="30" oninput="updateGoal(2,this.value)">
+    <div class="frow" style="margin-bottom:10px">
+      <label style="font-size:14px;color:var(--ink)">🌙 Buổi tối (phút)</label>
+      <input class="finput" type="number" id="goal2-slider" min="5" max="1200" value="30" oninput="updateGoal(2,this.value)" style="width:90px;font-size:16px;font-weight:700;color:var(--teal);border-color:var(--teal)">
     </div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;font-weight:600;letter-spacing:.5px">Loại thiền yêu thích</div>
     <div class="tags" id="pref-tags">
@@ -578,7 +578,6 @@ function nav(id){
 // ── GOAL ──
 function updateGoal(n,v){
   if(n===1) ST.goal1=+v; else ST.goal2=+v;
-  document.getElementById('goal'+n+'-val').textContent=v+' ph';
   save(); renderAll();
 }
 
@@ -1319,9 +1318,7 @@ function renderAll(){
 // Init
 load();
 document.getElementById('goal1-slider').value=ST.goal1;
-document.getElementById('goal1-val').textContent=ST.goal1+' ph';
 document.getElementById('goal2-slider').value=ST.goal2;
-document.getElementById('goal2-val').textContent=ST.goal2+' ph';
 timerReset();
 renderAll();
 updateNotifBtn();
