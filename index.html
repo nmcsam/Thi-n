@@ -389,22 +389,36 @@ input[type=range]{width:100%;accent-color:var(--teal)}
     <!-- Ghi chú kết quả -->
     <div style="margin-bottom:10px">
       <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Ghi chú buổi thiền</div>
-      <textarea id="dd-note" rows="3" placeholder="Ghi lại cảm nhận, kết quả buổi thiền..." style="width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);color:var(--ink);resize:none;font-family:inherit"></textarea>
+      <div style="margin-bottom:6px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:3px">🌅 Buổi sáng</div>
+        <textarea id="dd-note-s" rows="2" placeholder="Ghi chú buổi sáng..." style="width:100%;padding:7px 10px;font-size:13px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);color:var(--ink);resize:none;font-family:inherit"></textarea>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:3px">🌙 Buổi tối</div>
+        <textarea id="dd-note-t" rows="2" placeholder="Ghi chú buổi tối..." style="width:100%;padding:7px 10px;font-size:13px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);color:var(--ink);resize:none;font-family:inherit"></textarea>
+      </div>
     </div>
 
     <!-- Đánh giá kết quả -->
     <div style="margin-bottom:14px">
       <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Đánh giá kết quả</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
-        <button id="rating-tot" onclick="setDayRating('tot')" style="padding:8px 4px;border-radius:var(--r);border:1.5px solid var(--border2);background:transparent;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s">
-          ⭐ Tốt
-        </button>
-        <button id="rating-can" onclick="setDayRating('can')" style="padding:8px 4px;border-radius:var(--r);border:1.5px solid var(--border2);background:transparent;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s">
-          💪 Cần cố gắng
-        </button>
-        <button id="rating-kem" onclick="setDayRating('kem')" style="padding:8px 4px;border-radius:var(--r);border:1.5px solid var(--border2);background:transparent;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s">
-          📉 Kém
-        </button>
+      <!-- Buổi sáng -->
+      <div style="margin-bottom:8px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:5px">🌅 Buổi sáng</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px">
+          <button id="rating-s-tot" onclick="setDayRating('s','tot')" style="padding:7px 4px;border-radius:var(--r);border:1.5px solid var(--border2);background:transparent;font-size:11px;font-weight:600;cursor:pointer">⭐ Tốt</button>
+          <button id="rating-s-can" onclick="setDayRating('s','can')" style="padding:7px 4px;border-radius:var(--r);border:1.5px solid var(--border2);background:transparent;font-size:11px;font-weight:600;cursor:pointer">💪 Cố gắng</button>
+          <button id="rating-s-kem" onclick="setDayRating('s','kem')" style="padding:7px 4px;border-radius:var(--r);border:1.5px solid var(--border2);background:transparent;font-size:11px;font-weight:600;cursor:pointer">📉 Kém</button>
+        </div>
+      </div>
+      <!-- Buổi tối -->
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:5px">🌙 Buổi tối</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px">
+          <button id="rating-t-tot" onclick="setDayRating('t','tot')" style="padding:7px 4px;border-radius:var(--r);border:1.5px solid var(--border2);background:transparent;font-size:11px;font-weight:600;cursor:pointer">⭐ Tốt</button>
+          <button id="rating-t-can" onclick="setDayRating('t','can')" style="padding:7px 4px;border-radius:var(--r);border:1.5px solid var(--border2);background:transparent;font-size:11px;font-weight:600;cursor:pointer">💪 Cố gắng</button>
+          <button id="rating-t-kem" onclick="setDayRating('t','kem')" style="padding:7px 4px;border-radius:var(--r);border:1.5px solid var(--border2);background:transparent;font-size:11px;font-weight:600;cursor:pointer">📉 Kém</button>
+        </div>
       </div>
     </div>
 
@@ -922,18 +936,20 @@ function showDayDetail(k){
   if(!e||(!e.mins1&&!e.mins2)){
     document.getElementById('dd-body').innerHTML='<span style="color:var(--muted)">Không có dữ liệu thiền.</span>';
   } else {
-    document.getElementById('dd-body').innerHTML=
-      '<b>🌅 Sáng:</b> '+(e.mins1||0)+'ph · '+((e.types1||[]).join(', ')||'—')+'<br>'+
+    let body='<b>🌅 Sáng:</b> '+(e.mins1||0)+'ph · '+((e.types1||[]).join(', ')||'—')+'<br>'+
       '<b>🌙 Tối:</b> '+(e.mins2||0)+'ph · '+((e.types2||[]).join(', ')||'—')+'<br>'+
       '<b>Tổng:</b> '+((e.mins1||0)+(e.mins2||0))+'ph';
+    if(e.noteS)body+='<br><i style="color:var(--muted);font-size:11px">🌅 '+e.noteS+'</i>';
+    if(e.noteT)body+='<br><i style="color:var(--muted);font-size:11px">🌙 '+e.noteT+'</i>';
+    document.getElementById('dd-body').innerHTML=body;
   }
 
   // Ghi chú
-  document.getElementById('dd-note').value=e?e.note||'':'';
+  document.getElementById('dd-note-s').value=e?e.noteS||'':'';
+  document.getElementById('dd-note-t').value=e?e.noteT||'':'';
 
-  // Đánh giá
-  const rating=e?e.dayRating:null;
-  updateRatingBtns(rating);
+  // Đánh giá sáng + tối
+  updateRatingBtns(e?e.ratingS:null, e?e.ratingT:null);
 
   // Sửa dữ liệu — cho phép cả ngày đã qua
   document.getElementById('dd-mins1').value=e?e.mins1||0:0;
@@ -943,38 +959,34 @@ function showDayDetail(k){
   document.getElementById('day-detail').classList.add('on');
 }
 
-function updateRatingBtns(rating){
-  const btns={
-    'tot':document.getElementById('rating-tot'),
-    'can':document.getElementById('rating-can'),
-    'kem':document.getElementById('rating-kem')
-  };
+function updateRatingBtns(ratingS, ratingT){
   const colors={'tot':'#076d5e','can':'#9a6c00','kem':'#7a1c38'};
-  Object.entries(btns).forEach(([key,btn])=>{
-    if(!btn)return;
-    const active=rating===key;
-    btn.style.background=active?colors[key]:'transparent';
-    btn.style.color=active?'#fff':'var(--ink)';
-    btn.style.borderColor=active?colors[key]:'var(--border2)';
+  ['tot','can','kem'].forEach(r=>{
+    const bs=document.getElementById('rating-s-'+r);
+    const bt=document.getElementById('rating-t-'+r);
+    if(bs){const a=ratingS===r;bs.style.background=a?colors[r]:'transparent';bs.style.color=a?'#fff':'var(--ink)';bs.style.borderColor=a?colors[r]:'var(--border2)';}
+    if(bt){const a=ratingT===r;bt.style.background=a?colors[r]:'transparent';bt.style.color=a?'#fff':'var(--ink)';bt.style.borderColor=a?colors[r]:'var(--border2)';}
   });
 }
 
-function setDayRating(r){
+function setDayRating(sess, r){
   const k=currentDayKey;if(!k)return;
   let e=getEntry(k);
   if(!e){e={date:k,mins1:0,mins2:0,q1:3,q2:3,types1:[],types2:[]};ST.data.push(e);}
-  e.dayRating=e.dayRating===r?null:r; // toggle
-  save();updateRatingBtns(e.dayRating);renderPieChart();
+  if(sess==='s'){e.ratingS=e.ratingS===r?null:r;}
+  else{e.ratingT=e.ratingT===r?null:r;}
+  save();updateRatingBtns(e.ratingS,e.ratingT);renderPieChart();
 }
 
 function saveDayDetail(){
   const k=currentDayKey;if(!k)return;
   const mins1=+document.getElementById('dd-mins1').value||0;
   const mins2=+document.getElementById('dd-mins2').value||0;
-  const note=document.getElementById('dd-note').value.trim();
+  const noteS=document.getElementById('dd-note-s').value.trim();
+  const noteT=document.getElementById('dd-note-t').value.trim();
   let e=getEntry(k);
   if(!e){e={date:k,mins1:0,mins2:0,q1:3,q2:3,types1:[],types2:[]};ST.data.push(e);}
-  e.mins1=mins1;e.mins2=mins2;e.note=note;
+  e.mins1=mins1;e.mins2=mins2;e.noteS=noteS;e.noteT=noteT;
   save();renderAll();
   document.getElementById('day-detail').classList.remove('on');
   toast('✓ Đã lưu ngày '+k);
@@ -982,7 +994,10 @@ function saveDayDetail(){
 
 function renderPieChart(){
   const counts={tot:0,can:0,kem:0};
-  ST.data.forEach(e=>{if(e.dayRating&&counts[e.dayRating]!==undefined)counts[e.dayRating]++;});
+  ST.data.forEach(e=>{
+    if(e.ratingS&&counts[e.ratingS]!==undefined)counts[e.ratingS]++;
+    if(e.ratingT&&counts[e.ratingT]!==undefined)counts[e.ratingT]++;
+  });
   const total=counts.tot+counts.can+counts.kem;
   const legend=document.getElementById('pie-legend');
   if(!total){
@@ -1001,7 +1016,7 @@ function renderPieChart(){
   });
   legend.innerHTML=labels.map((l,i)=>{
     const pct=total>0?Math.round(data[i]/total*100):0;
-    return '<div style="display:flex;align-items:center;gap:6px;font-size:12px"><div style="width:10px;height:10px;border-radius:2px;background:'+colors[i]+';flex-shrink:0"></div><span style="flex:1;color:var(--ink)">'+l+'</span><span style="font-weight:700;color:'+colors[i]+'">'+pct+'% ('+data[i]+')</span></div>';
+    return '<div style="display:flex;align-items:center;gap:6px;font-size:11px"><div style="width:10px;height:10px;border-radius:2px;background:'+colors[i]+';flex-shrink:0"></div><span style="flex:1;color:var(--ink)">'+l+'</span><span style="font-weight:700;color:'+colors[i]+'">'+pct+'% ('+data[i]+')</span></div>';
   }).join('');
 }
 
