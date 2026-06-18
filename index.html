@@ -743,11 +743,15 @@ function renderMonthPVA(){
     const c2=m2>0?(p2>=1?'#7a1c38':p2>=0.7?'#b03060':'#f0b429'):'rgba(192,57,43,.22)';
     const show1=m1>0||isPast||isToday;
     const show2=m2>0||isPast||isToday;
-    const ol=isToday?'outline:2px solid var(--teal);outline-offset:1px;border-radius:2px':'';
-
-    html+='<div style="flex:1;display:flex;align-items:flex-end;gap:0.5px;height:'+H+'px;'+ol+'" title="Ngay '+d+': S'+m1+'ph T'+m2+'ph">';
-    html+='<div style="flex:1;height:'+Math.max(h1,show1?emptyH:0)+'px;background:'+c1+';border-radius:1px 1px 0 0"></div>';
-    html+='<div style="flex:1;height:'+Math.max(h2,show2?emptyH:0)+'px;background:'+c2+';border-radius:1px 1px 0 0"></div>';
+    html+='<div style="flex:1;display:flex;align-items:flex-end;gap:0.5px;height:'+H+'px;" title="Ngay '+d+': S'+m1+'ph T'+m2+'ph">';
+    if(show1){
+      const bc1=m1>0?c1:'rgba(192,57,43,.4)';
+      html+='<div style="flex:1;height:'+Math.max(h1,emptyH)+'px;border:1px solid '+bc1+';border-bottom:none;border-radius:1px 1px 0 0;background-image:radial-gradient(circle,'+bc1+' 0.5px,transparent 0.5px);background-size:2px 2px;background-color:transparent"></div>';
+    }else{html+='<div style="flex:1;height:0"></div>';}
+    if(show2){
+      const bc2=m2>0?c2:'rgba(192,57,43,.4)';
+      html+='<div style="flex:1;height:'+Math.max(h2,emptyH)+'px;border:1px solid '+bc2+';border-bottom:none;border-radius:1px 1px 0 0;background-image:repeating-linear-gradient(45deg,'+bc2+' 0px,'+bc2+' 0.5px,transparent 0.5px,transparent 2.5px);background-color:transparent"></div>';
+    }else{html+='<div style="flex:1;height:0"></div>';}
     html+='</div>';
   }
   html+='</div></div>'; // end flex + vùng cột
