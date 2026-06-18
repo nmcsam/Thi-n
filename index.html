@@ -380,13 +380,11 @@ input[type=range]{width:100%;accent-color:var(--teal)}
       </div>
     </div>
     <!-- Biểu đồ tháng: canvas -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:2px;background:#0e7f6e"></div>Sáng ≥KH</div>
-      <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:2px;background:rgba(14,127,110,.35)"></div>Sáng &lt;KH</div>
-      <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:2px;background:#8b3a52"></div>Tối ≥KH</div>
-      <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:2px;background:rgba(139,58,82,.35)"></div>Tối &lt;KH</div>
-      <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:16px;height:2px;background:#b8860b"></div>KH sáng</div>
-      <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:16px;height:0;border-top:2px dashed #8b3a52"></div>KH tối</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#0e7f6e"></div>Đủ kế hoạch</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#4aab8a"></div>≥70%</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#e8c84a"></div>&lt;70%</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#c0392b"></div>Không thiền</div>
     </div>
     <div style="position:relative;width:100%;height:130px">
       <canvas id="month-chart-canvas" role="img" aria-label="Biểu đồ thiền tháng tách sáng tối"></canvas>
@@ -1129,7 +1127,11 @@ function renderMonthPVA(){
   let actualTotal=0; let fullDays=0; let missDays=0;
 
   const labels=[]; const m1s=[]; const m2s=[];
+  const m1s_real=[]; const m2s_real=[];
   const c1s=[]; const c2s=[];
+  const barColors=[];
+  const barData=[];
+
   for(let d=1;d<=daysInMonth;d++){
     const k=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     const e=getEntry(k);
@@ -1138,17 +1140,20 @@ function renderMonthPVA(){
     const isPast=d<todayD; const isToday=d===todayD;
     if(m1>0||m2>0){if(m1>=ST.goal1&&m2>=ST.goal2)fullDays++;}
     else if(isPast) missDays++;
-    labels.push(d===1||d%5===0||isToday?String(d):'');
-    // Ngày trống dùng giá trị nhỏ để cột hiện ra (5% của goal)
-    const ph=Math.max(Math.round((ST.goal1||30)*0.08), 3);
-    m1s.push(m1||ph); m2s.push(m2||ph);
-    const p1=ST.goal1>0?m1/ST.goal1:0;
-    const p2=ST.goal2>0?m2/ST.goal2:0;
-    const empty1=m1===0; const empty2=m2===0;
-    const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
-    const eg=isDark?'rgba(255,255,255,.12)':'rgba(0,0,0,.10)';
-    c1s.push(empty1?eg:p1>=1?'#0e7f6e':p1>=0.7?'rgba(14,127,110,.65)':'rgba(14,127,110,.35)');
-    c2s.push(empty2?eg:p2>=1?'#8b3a52':p2>=0.7?'rgba(139,58,82,.65)':'rgba(139,58,82,.35)');
+    labels.push(String(d));
+    const total=m1+m2;
+    const goal=ST.goal1+ST.goal2;
+    const pct=goal>0?total/goal:0;
+    // Màu: xanh đậm ≥100%, xanh vừa ≥70%, vàng <70% có thiền, đỏ = không thiền (ngày qua)
+    if(total>0){
+      barColors.push(pct>=1?'#0e7f6e':pct>=0.7?'#4aab8a':'#e8c84a');
+    } else if(isPast||isToday){
+      barColors.push('#c0392b'); // đỏ = bỏ
+    } else {
+      barColors.push('rgba(0,0,0,0.07)'); // tương lai = xám nhạt
+    }
+    barData.push(1); // tất cả cột cùng chiều cao
+  }
   }
 
   const planTotal=(ST.goal1+ST.goal2)*daysInMonth;
@@ -1164,32 +1169,39 @@ function renderMonthPVA(){
   document.getElementById('mpva-progress').style.background=moColor;
 
   // Chart
-  if(charts.monthMain) charts.monthMain.destroy();
-  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
-  const gc=isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
-  const tc=isDark?'#8888a8':'#7a7a8c';
-  // goal lines as datasets
-  charts.monthMain=new Chart(document.getElementById('month-chart-canvas'),{
-    type:'bar',
-    data:{
-      labels,
-      datasets:[
-        {label:'Sáng',data:m1s,backgroundColor:c1s,borderRadius:2,borderSkipped:false,barPercentage:.45,categoryPercentage:1},
-        {label:'Tối',data:m2s,backgroundColor:c2s,borderRadius:2,borderSkipped:false,barPercentage:.45,categoryPercentage:1},
-        {label:'KH sáng',data:Array(daysInMonth).fill(ST.goal1),type:'line',borderColor:'#b8860b',borderWidth:1.5,pointRadius:0,tension:0,fill:false,order:0},
-        {label:'KH tối',data:Array(daysInMonth).fill(ST.goal2),type:'line',borderColor:'#8b3a52',borderWidth:1,borderDash:[4,3],pointRadius:0,tension:0,fill:false,order:0}
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      animation:{duration:400},
-      plugins:{legend:{display:false},tooltip:{callbacks:{title:([i])=>'Ngày '+(i.dataIndex+1),label:c=>c.dataset.label+': '+c.raw+' ph'}}},
-      scales:{
-        y:{beginAtZero:true,grid:{color:gc},ticks:{color:tc,font:{size:9},maxTicksLimit:4}},
-        x:{grid:{display:false},ticks:{color:tc,font:{size:8},maxRotation:0}}
-      }
-    }
-  });
+  if(charts.monthMain){ charts.monthMain.destroy(); charts.monthMain=null; }
+  // Dùng HTML thuần thay Chart.js để đảm bảo luôn hiện
+  const canvas=document.getElementById('month-chart-canvas');
+  canvas.style.display='none';
+  let chartDiv=document.getElementById('month-html-chart');
+  if(!chartDiv){
+    chartDiv=document.createElement('div');
+    chartDiv.id='month-html-chart';
+    canvas.parentNode.appendChild(chartDiv);
+  }
+  chartDiv.style.cssText='display:flex;align-items:flex-end;gap:1.5px;height:80px;padding:4px 0 0';
+  let html='';
+  for(let d=1;d<=daysInMonth;d++){
+    const k=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const e=getEntry(k);
+    const m1=e?e.mins1||0:0; const m2=e?e.mins2||0:0;
+    const total=m1+m2; const goal=ST.goal1+ST.goal2;
+    const pct=goal>0?total/goal:0;
+    const isPast=d<todayD; const isToday=d===todayD;
+    let color;
+    if(total>0) color=pct>=1?'#0e7f6e':pct>=0.7?'#4aab8a':'#e8c84a';
+    else if(isPast||isToday) color='#c0392b';
+    else color='rgba(0,0,0,0.07)';
+    const showLbl=d===1||d%5===0||isToday;
+    const outline=isToday?'outline:2px solid var(--teal);outline-offset:1px;':'';
+    html+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0">
+      <div style="width:100%;height:60px;display:flex;align-items:flex-end">
+        <div style="width:100%;height:100%;background:${color};border-radius:2px 2px 0 0;${outline}" title="Ngày ${d}: ${total>0?total+' ph':'Không thiền'}"></div>
+      </div>
+      <div style="font-size:8px;color:${isToday?'var(--teal)':'var(--muted)'};font-weight:${isToday?700:400};overflow:hidden;white-space:nowrap">${showLbl?d:''}</div>
+    </div>`;
+  }
+  chartDiv.innerHTML=html;
 }
 
 
