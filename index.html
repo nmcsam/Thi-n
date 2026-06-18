@@ -682,8 +682,14 @@ function renderMonthPVA(){
   const daysInMonth=new Date(y,mo+1,0).getDate();const todayD=now.getDate();
   let actualTotal=0,fullDays=0,missDays=0;
 
-  // maxVal cố định = max(goal1,goal2)*1.2 — cột và đường KH cùng tỉ lệ
-  const maxVal=Math.max(ST.goal1,ST.goal2)*1.2;
+  // maxVal = max của cả KH lẫn thực tế, cộng 15% buffer
+  let dataMax=0;
+  for(let d=1;d<=daysInMonth;d++){
+    const k2=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const e2=getEntry(k2);
+    if(e2){dataMax=Math.max(dataMax,e2.mins1||0,e2.mins2||0);}
+  }
+  const maxVal=Math.max(ST.goal1,ST.goal2,dataMax)*1.15;
   const H=80; // px chiều cao vùng cột
   const LH=14; // px chiều cao label ngày
 
