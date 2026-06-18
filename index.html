@@ -285,7 +285,12 @@ input[type=range]{width:100%;accent-color:var(--teal)}
             <div id="timer-state-lbl" style="font-size:8px;color:var(--muted)">Sẵn sàng</div>
           </div>
         </div>
-        <div style="display:flex;gap:4px;width:100%;margin-bottom:4px">
+        <!-- Thông báo hệ thống -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+          <span style="font-size:10px;color:var(--muted)">🔔 Thông báo khi hết giờ</span>
+          <button id="notif-btn" onclick="enableNotif()" style="padding:3px 10px;border-radius:6px;border:1px solid var(--border2);background:transparent;font-size:10px;font-weight:600;color:var(--teal);cursor:pointer">Bật thông báo</button>
+        </div>
+        <div style="display:flex;gap:4px;width:100%;margin-top:8px;margin-bottom:4px">
           <button onclick="adjTimerMins(-5)" style="border:none;background:var(--surface3);border-radius:6px;flex:1;padding:5px 0;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink)">−5</button>
           <button onclick="adjTimerMins(5)" style="border:none;background:var(--surface3);border-radius:6px;flex:1;padding:5px 0;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink)">+5</button>
         </div>
@@ -383,7 +388,7 @@ input[type=range]{width:100%;accent-color:var(--teal)}
       <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:16px;height:2px;background:#b8860b"></div>KH sáng</div>
       <div style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--muted)"><div style="width:16px;height:0;border-top:2px dashed #8b3a52"></div>KH tối</div>
     </div>
-    <div style="position:relative;width:100%;height:90px">
+    <div style="position:relative;width:100%;height:130px">
       <canvas id="month-chart-canvas" role="img" aria-label="Biểu đồ thiền tháng tách sáng tối"></canvas>
     </div>
     <div id="month-pva-bars" style="display:none"></div>
@@ -788,6 +793,50 @@ function renderInlineChart(){
   lblsEl.innerHTML=lblsHtml;
 }
 
+let wakeLock = null;
+
+async function requestWakeLock(){
+  try{
+    if('wakeLock' in navigator){
+      wakeLock = await navigator.wakeLock.request('screen');
+    }
+  }catch(e){}
+}
+
+function releaseWakeLock(){
+  try{ if(wakeLock){ wakeLock.release(); wakeLock=null; } }catch(e){}
+}
+
+async function requestNotifPermission(){
+  if(!('Notification' in window)) return false;
+  if(Notification.permission==='granted') return true;
+  if(Notification.permission==='denied') return false;
+  const p = await Notification.requestPermission();
+  return p==='granted';
+}
+
+let swReg = null;
+
+async function registerSW(){
+  if(!('serviceWorker' in navigator)) return;
+  try{
+    swReg = await navigator.serviceWorker.register('./sw.js');
+    await navigator.serviceWorker.ready;
+  }catch(e){ console.log('SW error:', e); }
+}
+
+function sendNotif(title, body){
+  const icon = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🧘</text></svg>';
+  // Ưu tiên dùng Service Worker (hoạt động khi màn hình tắt)
+  if(swReg && swReg.active){
+    swReg.active.postMessage({type:'NOTIFY', title, body, icon});
+    return;
+  }
+  // Fallback: Notification API thường
+  if(!('Notification' in window)||Notification.permission!=='granted') return;
+  try{ new Notification(title,{body, icon, tag:'thien-done', requireInteraction:true}); }catch(e){}
+}
+
 function timerStartStop(){
   if(!timerRunning){
     if(timerRemaining<=0){ timerTotal=timerMins*60; timerRemaining=timerTotal; }
@@ -795,16 +844,21 @@ function timerStartStop(){
     document.getElementById('timer-start-btn').textContent='⏸ Đang chạy';
     document.getElementById('timer-start-btn').className='tbtn stop';
     document.getElementById('timer-state-lbl').textContent='Đang thiền…';
+    requestWakeLock(); // giữ màn hình sáng
     timerInterval=setInterval(()=>{
       timerRemaining--;
       document.getElementById('timer-display').textContent=timerFmt(timerRemaining);
       updateRing(timerRemaining,timerTotal);
       if(timerRemaining<=0){
         clearInterval(timerInterval); timerRunning=false;
+        releaseWakeLock();
         document.getElementById('timer-start-btn').textContent='▶ Bắt đầu';
         document.getElementById('timer-start-btn').className='tbtn start';
         document.getElementById('timer-state-lbl').textContent='Hoàn thành 🙏';
         if(document.getElementById('bell-end').checked){ ringBell(bellType,0.6); setTimeout(()=>ringBell(bellType,0.45),1200); }
+        // Thông báo hệ thống
+        const sess=getActiveSession()===1?'buổi sáng':'buổi tối';
+        sendNotif('🔔 Hết giờ thiền!', 'Bạn đã hoàn thành '+timerMins+' phút '+sess+'. Sadhu! 🙏');
         // auto-log
         const k=getDK(); let e=getEntry(k);
         if(!e){e={date:k,mins1:0,mins2:0,q1:3,q2:3,types1:[],types2:[]};ST.data.push(e);}
@@ -815,6 +869,7 @@ function timerStartStop(){
     },1000);
   } else {
     clearInterval(timerInterval); timerRunning=false;
+    releaseWakeLock();
     const _sl=getActiveSession();document.getElementById('timer-start-btn').innerHTML='▶ '+(_sl===1?'🌅':'🌙')+' Tiếp tục';
     document.getElementById('timer-start-btn').className='tbtn start';
     document.getElementById('timer-state-lbl').textContent='Đã dừng';
@@ -1080,16 +1135,20 @@ function renderMonthPVA(){
     const e=getEntry(k);
     const m1=e?e.mins1||0:0; const m2=e?e.mins2||0:0;
     actualTotal+=m1+m2;
-    const isPast=d<todayD;
+    const isPast=d<todayD; const isToday=d===todayD;
     if(m1>0||m2>0){if(m1>=ST.goal1&&m2>=ST.goal2)fullDays++;}
     else if(isPast) missDays++;
-    labels.push(d%5===0||d===1||d===todayD?String(d):'');
-    m1s.push(m1); m2s.push(m2);
-    // colour by % of goal: ≥100% đậm, ≥70% vừa, <70% nhạt
+    labels.push(d===1||d%5===0||isToday?String(d):'');
+    // Ngày trống dùng giá trị nhỏ để cột hiện ra (5% của goal)
+    const ph=Math.max(Math.round((ST.goal1||30)*0.08), 3);
+    m1s.push(m1||ph); m2s.push(m2||ph);
     const p1=ST.goal1>0?m1/ST.goal1:0;
     const p2=ST.goal2>0?m2/ST.goal2:0;
-    c1s.push(p1>=1?'#0e7f6e':p1>=0.7?'rgba(14,127,110,.65)':'rgba(14,127,110,.3)');
-    c2s.push(p2>=1?'#8b3a52':p2>=0.7?'rgba(139,58,82,.65)':'rgba(139,58,82,.3)');
+    const empty1=m1===0; const empty2=m2===0;
+    const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+    const eg=isDark?'rgba(255,255,255,.12)':'rgba(0,0,0,.10)';
+    c1s.push(empty1?eg:p1>=1?'#0e7f6e':p1>=0.7?'rgba(14,127,110,.65)':'rgba(14,127,110,.35)');
+    c2s.push(empty2?eg:p2>=1?'#8b3a52':p2>=0.7?'rgba(139,58,82,.65)':'rgba(139,58,82,.35)');
   }
 
   const planTotal=(ST.goal1+ST.goal2)*daysInMonth;
@@ -1158,6 +1217,33 @@ function renderTimerInfo(){
   }
 }
 
+async function enableNotif(){
+  const ok = await requestNotifPermission();
+  const btn=document.getElementById('notif-btn');
+  if(ok){
+    btn.textContent='✓ Đã bật';
+    btn.style.color='var(--teal)';
+    btn.style.background='var(--teal-light)';
+    btn.disabled=true;
+    toast('✓ Sẽ nhận thông báo khi hết giờ');
+  } else {
+    btn.textContent='Bị chặn — vào Settings';
+    btn.style.color='var(--rose)';
+    toast('Vui lòng cấp quyền thông báo trong Settings trình duyệt');
+  }
+}
+
+function updateNotifBtn(){
+  const btn=document.getElementById('notif-btn');
+  if(!btn||!('Notification' in window)) return;
+  if(Notification.permission==='granted'){
+    btn.textContent='✓ Đã bật'; btn.style.color='var(--teal)';
+    btn.style.background='var(--teal-light)'; btn.disabled=true;
+  } else if(Notification.permission==='denied'){
+    btn.textContent='Bị chặn'; btn.style.color='var(--rose)';
+  }
+}
+
 function renderAll(){
   const today=new Date();
   document.getElementById('hdr-date').textContent=DAYS7[today.getDay()]+', '+today.getDate()+'/'+(today.getMonth()+1)+'/'+today.getFullYear();
@@ -1177,6 +1263,8 @@ document.getElementById('goal2-slider').value=ST.goal2;
 document.getElementById('goal2-val').textContent=ST.goal2+' ph';
 timerReset();
 renderAll();
+updateNotifBtn();
+registerSW();
 </script>
 </body>
 </html>
