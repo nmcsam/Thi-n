@@ -258,6 +258,9 @@ input[type=range]{width:100%;accent-color:var(--teal)}
         <div class="sess-status" id="sess2-status" style="font-size:10px">Nhấn để ghi</div>
       </div>
     </div>
+    <!-- Các buổi thiền thêm -->
+    <div id="extra-sessions-row"></div>
+    <button onclick="addExtraSession()" style="width:100%;padding:7px;border-radius:var(--r);border:1px dashed var(--border2);background:transparent;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:8px">+ Thêm thời thiền</button>
     <div style="display:flex;align-items:center;gap:8px">
       <div style="flex:1">
         <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Hoàn thành hôm nay</div>
@@ -382,10 +385,12 @@ input[type=range]{width:100%;accent-color:var(--teal)}
     </div>
     <!-- Biểu đồ tháng: canvas -->
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#0e7f6e"></div>Đủ kế hoạch</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#0e7f6e"></div>Đủ KH</div>
       <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#4aab8a"></div>≥70%</div>
       <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#e8c84a"></div>&lt;70%</div>
       <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#c0392b"></div>Không thiền</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:16px;height:2px;background:#b8860b"></div>KH sáng</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><div style="width:16px;height:0;border-top:1.5px dashed #8b3a52"></div>KH tối</div>
     </div>
     <div style="position:relative;width:100%;height:130px">
       <canvas id="month-chart-canvas" role="img" aria-label="Biểu đồ thiền tháng tách sáng tối"></canvas>
@@ -623,6 +628,49 @@ function openLogModal(sessNum){
 }
 function closeLogModal(){ document.getElementById('log-modal').classList.remove('on'); }
 
+function addExtraSession(){
+  const k=getDK(); let e=getEntry(k);
+  if(!e){e={date:k,mins1:0,mins2:0,q1:3,q2:3,types1:[],types2:[]};ST.data.push(e);}
+  if(!e.extra) e.extra=[];
+  e.extra.push({mins:30,types:['Ānāpāna'],q:3});
+  save(); renderExtraSessions(); renderAll();
+}
+
+function removeExtraSession(idx){
+  const k=getDK(); const e=getEntry(k);
+  if(!e||!e.extra) return;
+  e.extra.splice(idx,1);
+  save(); renderExtraSessions(); renderAll();
+}
+
+function renderExtraSessions(){
+  const k=getDK(); const e=getEntry(k);
+  const extras=e&&e.extra?e.extra:[];
+  const row=document.getElementById('extra-sessions-row');
+  if(!row) return;
+  if(!extras.length){row.innerHTML='';return;}
+  row.innerHTML=extras.map((ex,i)=>`
+    <div style="display:flex;align-items:center;gap:6px;background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--r);padding:8px 10px;margin-bottom:6px">
+      <div style="font-size:12px">✨ Thời ${i+3}</div>
+      <div style="flex:1;font-size:13px;font-weight:600;color:var(--teal)">${ex.mins} ph</div>
+      <div style="font-size:11px;color:var(--muted)">${(ex.types||[]).join(', ')||'—'}</div>
+      <button onclick="openExtraLogModal(${i})" style="border:none;background:transparent;font-size:13px;cursor:pointer">✏️</button>
+      <button onclick="removeExtraSession(${i})" style="border:none;background:transparent;font-size:13px;cursor:pointer;color:#8b3a52">✕</button>
+    </div>`).join('');
+}
+
+function openExtraLogModal(idx){
+  const k=getDK(); const e=getEntry(k);
+  const ex=e&&e.extra?e.extra[idx]:null;
+  if(!ex) return;
+  logSessNum='extra_'+idx;
+  document.getElementById('log-modal-title').textContent='Thời thiền '+( idx+3);
+  document.getElementById('log-mins').value=ex.mins||30;
+  document.getElementById('log-quality').value=ex.q||3;
+  document.getElementById('modal-q-val').textContent=qLabel(ex.q||3);
+  document.getElementById('log-modal').classList.add('on');
+}
+
 function saveLog(){
   const mins=+document.getElementById('log-mins').value;
   const q=+document.getElementById('log-quality').value;
@@ -631,10 +679,17 @@ function saveLog(){
   const k=getDK();
   let e=getEntry(k);
   if(!e){e={date:k,mins1:0,mins2:0,q1:0,q2:0,types1:[],types2:[]};ST.data.push(e);}
-  if(logSessNum===1){e.mins1=mins;e.q1=q;e.types1=types;}
-  else{e.mins2=mins;e.q2=q;e.types2=types;}
-  save(); closeLogModal(); renderAll();
-  toast('✓ Đã lưu '+(logSessNum===1?'buổi sáng':'buổi tối'));
+  if(typeof logSessNum==='string'&&logSessNum.startsWith('extra_')){
+    const idx=+logSessNum.split('_')[1];
+    if(!e.extra) e.extra=[];
+    if(e.extra[idx]) e.extra[idx]={mins,types,q};
+  } else if(logSessNum===1){
+    e.mins1=mins;e.q1=q;e.types1=types;
+  } else {
+    e.mins2=mins;e.q2=q;e.types2=types;
+  }
+  save(); closeLogModal(); renderAll(); renderExtraSessions();
+  toast('✓ Đã lưu');
 }
 
 // ── TIMER ──
@@ -1179,27 +1234,53 @@ function renderMonthPVA(){
     chartDiv.id='month-html-chart';
     canvas.parentNode.appendChild(chartDiv);
   }
-  chartDiv.style.cssText='display:flex;align-items:flex-end;gap:2px;height:90px;padding:4px 0 0';
+  chartDiv.style.cssText='display:flex;align-items:flex-end;gap:1px;height:100px;padding:4px 0 0;position:relative';
+
+  // Tính maxVal từ sáng và tối riêng
+  const allVals2=[ST.goal1, ST.goal2, 1];
+  for(let d=1;d<=daysInMonth;d++){
+    const k2=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const e2=getEntry(k2);
+    if(e2){ allVals2.push(e2.mins1||0, e2.mins2||0); }
+  }
+  const maxVal=Math.max(...allVals2);
+  const barH=70;
+  const g1pct=(ST.goal1/maxVal*barH).toFixed(1);
+  const g2pct=(ST.goal2/maxVal*barH).toFixed(1);
+
   let html='';
+  html+=`<div style="position:relative;flex:1;display:flex;align-items:flex-end;gap:1px;height:${barH+18}px">`;
+  // Đường KH sáng
+  html+=`<div style="position:absolute;left:0;right:0;bottom:calc(18px + ${g1pct}px);height:2px;background:#b8860b;z-index:10;pointer-events:none">
+    <span style="position:absolute;right:0;top:-11px;font-size:7px;color:#b8860b;background:var(--surface);padding:0 2px">S:${ST.goal1}ph</span>
+  </div>`;
+  // Đường KH tối
+  html+=`<div style="position:absolute;left:0;right:0;bottom:calc(18px + ${g2pct}px);height:0;border-top:1.5px dashed #8b3a52;z-index:10;pointer-events:none">
+    <span style="position:absolute;left:0;top:-11px;font-size:7px;color:#8b3a52;background:var(--surface);padding:0 2px">T:${ST.goal2}ph</span>
+  </div>`;
+
   for(let d=1;d<=daysInMonth;d++){
     const k=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     const e=getEntry(k);
     const m1=e?e.mins1||0:0; const m2=e?e.mins2||0:0;
-    const total=m1+m2; const goal=ST.goal1+ST.goal2;
-    const pct=goal>0?total/goal:0;
     const isPast=d<todayD; const isToday=d===todayD;
-    let color;
-    if(total>0) color=pct>=1?'#0e7f6e':pct>=0.7?'#4aab8a':'#e8c84a';
-    else if(isPast||isToday) color='#c0392b';
-    else color='rgba(0,0,0,0.07)';
-    const outline=isToday?'outline:2px solid var(--teal);outline-offset:1px;':'';
-    html+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0">
-      <div style="width:40%;height:60px;display:flex;align-items:flex-end;margin:0 auto">
-        <div style="width:100%;height:100%;background:${color};border-radius:2px 2px 0 0;${outline}" title="Ngày ${d}: ${total>0?total+' ph':'Không thiền'}"></div>
+    const h1=Math.round(m1/maxVal*barH); const h2=Math.round(m2/maxVal*barH);
+    // Màu sáng
+    const p1=ST.goal1>0?m1/ST.goal1:0;
+    const c1=m1>0?(p1>=1?'#0e7f6e':p1>=0.7?'#4aab8a':'#e8c84a'):(isPast||isToday?'rgba(192,57,43,.25)':'rgba(0,0,0,.05)');
+    // Màu tối
+    const p2=ST.goal2>0?m2/ST.goal2:0;
+    const c2=m2>0?(p2>=1?'#8b3a52':p2>=0.7?'#c06080':'#e8c84a'):(isPast||isToday?'rgba(192,57,43,.25)':'rgba(0,0,0,.05)');
+    const outline=isToday?'outline:2px solid var(--teal);outline-offset:1px':'';
+    html+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;height:${barH+18}px;justify-content:flex-end;min-width:0;${outline}" title="Ngày ${d}&#10;🌅 ${m1}ph / 🌙 ${m2}ph">
+      <div style="width:100%;display:flex;align-items:flex-end;gap:0.5px;height:${barH}px">
+        <div style="flex:1;height:${h1||1}px;background:${c1};border-radius:1px 1px 0 0;min-height:${m1>0||isPast||isToday?2:0}px"></div>
+        <div style="flex:1;height:${h2||1}px;background:${c2};border-radius:1px 1px 0 0;min-height:${m2>0||isPast||isToday?2:0}px"></div>
       </div>
-      <div style="font-size:7px;color:${isToday?'var(--teal)':'var(--muted)'};font-weight:${isToday?700:400};line-height:1">${d}</div>
+      <div style="font-size:7px;color:${isToday?'var(--teal)':'var(--muted)'};font-weight:${isToday?700:400};line-height:1.4">${d}</div>
     </div>`;
   }
+  html+='</div>';
   chartDiv.innerHTML=html;
 }
 
@@ -1264,6 +1345,7 @@ function renderAll(){
   renderMonthPVA();
   renderTimerInfo();
   renderTodayPlanUI();
+  renderExtraSessions();
 }
 
 // Init
