@@ -1,13 +1,13 @@
 {
-  "name": "Thiền Tracker",
-  "short_name": "Thiền",
+  "name": "Nguyễn Hồng Sâm",
+  "short_name": "NHS",
   "description": "Theo dõi thời thiền hằng ngày",
   "start_url": "/Meditation/",
   "scope": "/Meditation/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
-  "theme_color": "#0e7f6e",
+  "theme_color": "#076d5e",
   "lang": "vi",
   "icons": [
     {
